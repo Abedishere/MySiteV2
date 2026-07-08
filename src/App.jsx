@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
@@ -204,13 +204,27 @@ function Experience() {
 
 /* --------------------------------- contact -------------------------------- */
 
+const EMAIL = 'abdelrahmanelkouche@gmail.com'
+
 function Contact() {
+  const [copied, setCopied] = useState(false)
+  // mailto opens the default mail app; if none is set up, the clipboard copy is
+  // the backup so the address is never lost to a dead click
+  const copy = () => {
+    navigator.clipboard?.writeText(EMAIL).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
+  }
   return (
     <footer id="contact" className="px-8 py-28 md:px-16 md:py-36">
       <p className="mono-label text-amber">04 / CONTACT</p>
-      <a href="mailto:abdelrahmanelkouche@gmail.com" className="display mt-6 block break-all text-3xl font-black uppercase leading-tight transition-colors hover:text-amber md:text-6xl" data-reveal>
+      <a href={`mailto:${EMAIL}`} onClick={copy} className="display mt-6 block break-all text-3xl font-black uppercase leading-tight transition-colors hover:text-amber md:text-6xl" data-reveal>
         abdelrahmanelkouche<br />@gmail.com
       </a>
+      <p className="mono-label mt-4 h-4 text-cyan transition-opacity duration-300" style={{ opacity: copied ? 1 : 0 }}>
+        COPIED TO CLIPBOARD ✓
+      </p>
       <div className="mt-12 flex flex-wrap gap-8">
         <a className="mono-label text-fog hover:text-amber" href="https://github.com/Abedishere" target="_blank" rel="noreferrer">GITHUB ↗</a>
         <a className="mono-label text-fog hover:text-amber" href="https://www.linkedin.com/in/abdel-rahman-el-kouche-27603927a/" target="_blank" rel="noreferrer">LINKEDIN ↗</a>
