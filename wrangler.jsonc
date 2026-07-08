@@ -3,7 +3,7 @@
   // No "main" script = assets-only. Cloudflare Workers Builds deploys this on
   // every push to main. _headers in dist/ still applies security headers.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "abdelrahman",
+  "name": "abdelrahmanelkouche",
   "compatibility_date": "2025-06-01",
   "assets": {
     "directory": "./dist",
