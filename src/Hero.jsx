@@ -356,9 +356,16 @@ function StaticHero() {
 export default function Hero() {
   const [full, setFull] = useState(null)
   useEffect(() => {
+    // static only for small screens or missing WebGL; OS reduced-motion no longer
+    // downgrades desktop — it kept serving the text fallback on machines with
+    // Windows animation effects turned off
     const small = window.matchMedia('(max-width: 767px)').matches
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setFull(!small && !reduced)
+    let webgl = false
+    try {
+      const c = document.createElement('canvas')
+      webgl = !!(c.getContext('webgl2') || c.getContext('webgl'))
+    } catch { /* no webgl */ }
+    setFull(!small && webgl)
   }, [])
   if (full === null) return <section className="h-screen" />
   return full ? <FullHero /> : <StaticHero />
