@@ -246,7 +246,7 @@ function FullHero() {
       R.scene.style.opacity = 1 - h
       R.handoff.style.opacity = h
       R.handoff.style.pointerEvents = h > 0.5 ? 'auto' : 'none'
-      R.hint.style.opacity = p < 0.048 ? 1 : 0
+      R.hint.style.opacity = p < 0.5 ? 1 : 0
     }
 
     const st = ScrollTrigger.create({
@@ -326,9 +326,11 @@ function FullHero() {
           </nav>
         </header>
         <p ref={(el) => (refs.current.count = el)} className="mono-label absolute bottom-6 right-6 md:bottom-10 md:right-12" />
-        <p ref={(el) => (refs.current.hint = el)} className="mono-label !text-sm absolute bottom-12 left-1/2 -translate-x-1/2 text-fog transition-opacity duration-500">
-          SCROLL ▼
-        </p>
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
+          <p ref={(el) => (refs.current.hint = el)} className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500">
+            SCROLL ▼
+          </p>
+        </div>
 
         {/* handoff */}
         <div ref={(el) => (refs.current.handoff = el)} className="pointer-events-none absolute inset-0 flex flex-col items-start justify-end p-8 opacity-0 md:p-16">
