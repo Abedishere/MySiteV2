@@ -8,96 +8,65 @@ gsap.registerPlugin(ScrollTrigger)
 
 /* ------------------------- real content, no lorem ------------------------- */
 
-const TASK = 'unicode run "add token-bucket rate limiting to the /checkout API endpoint"'
-
-const ROUTES = [
-  '→ claude   architecture & failure modes   (long-context reasoning)',
-  '→ codex    middleware implementation      (code synthesis)',
-  '→ qwen     test generation                (cheap, parallel, wide coverage)',
+const ERR_BUILD = [
+  '$ npm run build',
+  "✗ TypeError: cannot read 'user' of undefined",
+  '    at checkout/session.js:41:17',
+  '✗ 500 POST /api/checkout — payment intent null',
+  '✗ FAILED tests/checkout.test.js (3 of 12)',
 ]
 
-const CLAUDE_OUT = `# design note
-limiter lives in gateway middleware, not the
-handler: /checkout must fail fast before auth
-and DB work. token bucket per user_id+ip,
-burst 10, refill 1/s.
-failure mode: redis down -> fail OPEN, log,
-alert. never block checkout on limiter infra.`
-
-const CODEX_OUT = `# middleware/rate_limit.py
-async def rate_limit(req, call_next):
-    key = f"rl:{req.user_id}:{req.ip}"
-    ok = await bucket.take(key, cost=1)
-    if not ok:
-        return json_429(retry=bucket.ttl(key))
-    return await call_next(req)`
-
-const QWEN_OUT = `def test_burst_then_throttle():
-    for _ in range(10):
-        assert post("/checkout").status == 200
-    assert post("/checkout").status == 429
-
-def test_refill_after_one_second():
-    sleep(1.0)
-    assert post("/checkout").status == 200`
-
-const MERGE_OUT = `assemble: design note + middleware + 2 tests
-resolve imports, wire gateway.py, run linters
-→ single coherent change set`
-
-const OUTPUT_DIFF = `PR: add token-bucket rate limiting to /checkout
-+ middleware/rate_limit.py      (+38)
-+ tests/test_rate_limit.py      (+24)
-~ api/gateway.py                (+3 −0)
-note: fail-open on limiter infra errors, alerted
-✓ ci: lint, unit, burst 50rps load test — green`
-
-/* --------- layout of the graph plane (percent coords, 2.5D via CSS) -------- */
-
-const NODES = {
-  task:   { x: 50, y: 8,  w: 'w-[min(560px,86vw)]', title: 'task' },
-  router: { x: 50, y: 26, w: 'w-[min(520px,86vw)]', title: 'router' },
-  claude: { x: 18, y: 52, w: 'w-[300px]', title: 'claude · architecture' },
-  codex:  { x: 50, y: 52, w: 'w-[300px]', title: 'codex · implementation' },
-  qwen:   { x: 82, y: 52, w: 'w-[300px]', title: 'qwen · tests' },
-  merge:  { x: 50, y: 76, w: 'w-[min(480px,86vw)]', title: 'merge' },
-  output: { x: 50, y: 92, w: 'w-[min(560px,86vw)]', title: 'output · reviewable diff' },
-}
-
-const EDGES = [
-  { id: 'tr', d: 'M 50 11 L 50 23', a: 0.22, b: 0.30 },
-  { id: 'rc', d: 'M 50 30 C 50 40, 18 40, 18 46', a: 0.30, b: 0.40 },
-  { id: 'rx', d: 'M 50 30 L 50 46', a: 0.32, b: 0.40 },
-  { id: 'rq', d: 'M 50 30 C 50 40, 82 40, 82 46', a: 0.34, b: 0.40 },
-  { id: 'cm', d: 'M 18 60 C 18 70, 50 68, 50 73', a: 0.70, b: 0.78 },
-  { id: 'xm', d: 'M 50 60 L 50 73', a: 0.71, b: 0.78 },
-  { id: 'qm', d: 'M 82 60 C 82 70, 50 68, 50 73', a: 0.72, b: 0.78 },
-  { id: 'mo', d: 'M 50 80 L 50 89', a: 0.80, b: 0.85 },
+const ERR_SERVER = [
+  '[ERR] db pool exhausted — 32 conns waiting',
+  '[ERR] redis timeout 5000ms — retries maxed',
+  '[ERR] worker-2 crashed: unhandled rejection',
+  '[ERR] queue depth 4,812 and climbing',
 ]
 
-// camera keyframes: [p, scale, translateY in % of plane height]
-const CAM = [
-  [0.00, 1.9, 40], [0.15, 1.7, 36], [0.30, 1.5, 22],
-  [0.40, 1.0, 0], [0.70, 1.0, 0],
-  [0.78, 1.35, -26], [0.90, 1.4, -42], [1.00, 1.4, -42],
+const ERR_CI = [
+  'ci/build     ✗ failed',
+  'ci/tests     ✗ 9 passed, 3 failed',
+  'ci/deploy    ⨯ blocked',
+]
+
+const FIX_DIFF = `- const user = session.user
++ const user = (await getSession(req))?.user
++ if (!user) return redirect("/login")
+- pool: { max: 10 }
++ pool: { max: 50, idleTimeout: 30_000 }
++ retry(redis, { backoff: "exp", max: 5 })
++ queue.concurrency = os.cpus().length - 1
+✓ 12 passed, 0 failed`
+
+const STATUS_LINE = 'all services connected — 0 errors — shipping ✓'
+
+const ARCH_NODES = [
+  { id: 'gw', label: 'gateway', x: 50, y: 16 },
+  { id: 'auth', label: 'auth', x: 22, y: 36 },
+  { id: 'api', label: 'api', x: 50, y: 40 },
+  { id: 'cache', label: 'cache', x: 78, y: 36 },
+  { id: 'db', label: 'postgres', x: 32, y: 66 },
+  { id: 'queue', label: 'queue', x: 68, y: 66 },
+  { id: 'wrk', label: 'workers', x: 50, y: 86 },
+]
+
+const ARCH_EDGES = [
+  { d: 'M 50 20 L 22 32', a: 0.66, b: 0.72 },
+  { d: 'M 50 20 L 50 36', a: 0.67, b: 0.73 },
+  { d: 'M 50 20 L 78 32', a: 0.68, b: 0.74 },
+  { d: 'M 46 44 L 34 62', a: 0.72, b: 0.78 },
+  { d: 'M 54 44 L 66 62', a: 0.73, b: 0.79 },
+  { d: 'M 78 40 L 54 42', a: 0.74, b: 0.79 },
+  { d: 'M 36 70 L 46 83', a: 0.76, b: 0.81 },
+  { d: 'M 64 70 L 54 83', a: 0.77, b: 0.82 },
 ]
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
 const seg = (p, a, b) => clamp01((p - a) / (b - a))
 
-function camAt(p) {
-  let i = 0
-  while (i < CAM.length - 2 && p > CAM[i + 1][0]) i++
-  const [pa, sa, ya] = CAM[i]
-  const [pb, sb, yb] = CAM[i + 1]
-  const t = clamp01((p - pa) / (pb - pa || 1))
-  const e = t * t * (3 - 2 * t)
-  return { s: sa + (sb - sa) * e, y: ya + (yb - ya) * e }
-}
-
 /* -------------------- chaos particles: shader buffer lerp ------------------ */
 
-const COUNT = 1200
+const COUNT = 1400
 
 function Particles({ pRef }) {
   const mat = useRef()
@@ -107,15 +76,15 @@ function Particles({ pRef }) {
     const chaos = new Float32Array(COUNT * 3)
     const target = new Float32Array(COUNT * 3)
     for (let i = 0; i < COUNT; i++) {
-      chaos[i * 3] = (Math.random() - 0.5) * 22
-      chaos[i * 3 + 1] = (Math.random() - 0.5) * 14
+      chaos[i * 3] = (Math.random() - 0.5) * 24
+      chaos[i * 3 + 1] = (Math.random() - 0.5) * 15
       chaos[i * 3 + 2] = (Math.random() - 0.5) * 10
-      // targets: a tight band where the task node sits (top of plane)
-      const a = Math.random() * Math.PI * 2
-      const r = 0.4 + Math.random() * 2.6
-      target[i * 3] = Math.cos(a) * r * 1.8
-      target[i * 3 + 1] = 3.4 + Math.sin(a) * r * 0.22
-      target[i * 3 + 2] = (Math.random() - 0.5) * 0.6
+      // targets: an orderly grid lattice — chaos literally becomes structure
+      const col = i % 40
+      const row = Math.floor(i / 40)
+      target[i * 3] = (col - 19.5) * 0.55
+      target[i * 3 + 1] = (row - (COUNT / 80)) * 0.5
+      target[i * 3 + 2] = -2
     }
     geo.current.setAttribute('position', new THREE.BufferAttribute(chaos, 3))
     geo.current.setAttribute('aTarget', new THREE.BufferAttribute(target, 3))
@@ -124,10 +93,10 @@ function Particles({ pRef }) {
   useFrame(({ clock }) => {
     if (!mat.current) return
     const p = pRef.current
-    mat.current.uniforms.uP.value = clamp01(p / 0.22)
+    mat.current.uniforms.uP.value = seg(p, 0.15, 0.65)
     mat.current.uniforms.uT.value = clock.elapsedTime
-    // particles carry the "chaos" beat, then recede once the graph takes over
-    mat.current.uniforms.uO.value = 0.9 - seg(p, 0.22, 0.38) * 0.78
+    mat.current.uniforms.uRed.value = 1 - seg(p, 0.3, 0.6)
+    mat.current.uniforms.uO.value = 0.85 - seg(p, 0.6, 0.9) * 0.65
   })
 
   return (
@@ -137,7 +106,7 @@ function Particles({ pRef }) {
         ref={mat}
         transparent
         depthWrite={false}
-        uniforms={{ uP: { value: 0 }, uT: { value: 0 }, uO: { value: 0.9 } }}
+        uniforms={{ uP: { value: 0 }, uT: { value: 0 }, uO: { value: 0.85 }, uRed: { value: 1 } }}
         vertexShader={`
           attribute vec3 aTarget;
           uniform float uP; uniform float uT;
@@ -145,44 +114,53 @@ function Particles({ pRef }) {
           void main() {
             float e = uP * uP * (3.0 - 2.0 * uP);
             vec3 pos = mix(position, aTarget, e);
-            pos.x += sin(uT * 0.6 + position.y * 3.0) * 0.08 * (1.0 - e);
-            pos.y += cos(uT * 0.5 + position.x * 2.0) * 0.08 * (1.0 - e);
-            vTint = step(0.85, fract(position.x * 13.7));
+            float w = (1.0 - e);
+            pos.x += sin(uT * 1.4 + position.y * 4.0) * 0.22 * w;
+            pos.y += cos(uT * 1.1 + position.x * 3.0) * 0.22 * w;
+            vTint = step(0.8, fract(position.x * 13.7));
             vec4 mv = modelViewMatrix * vec4(pos, 1.0);
             gl_Position = projectionMatrix * mv;
-            gl_PointSize = 2.2 * (140.0 / -mv.z);
+            gl_PointSize = 2.4 * (140.0 / -mv.z);
           }`}
         fragmentShader={`
-          uniform float uO;
+          uniform float uO; uniform float uRed;
           varying float vTint;
           void main() {
             float d = length(gl_PointCoord - 0.5);
             if (d > 0.5) discard;
-            vec3 amber = vec3(1.0, 0.70, 0.14);
-            vec3 cyan = vec3(0.31, 0.85, 0.88);
-            gl_FragColor = vec4(mix(amber, cyan, vTint), uO * (1.0 - d * 1.6));
+            vec3 calm = mix(vec3(1.0, 0.70, 0.14), vec3(0.31, 0.85, 0.88), vTint);
+            vec3 alarm = vec3(1.0, 0.28, 0.22);
+            gl_FragColor = vec4(mix(calm, alarm, uRed * (0.35 + 0.4 * vTint)), uO * (1.0 - d * 1.6));
           }`}
       />
     </points>
   )
 }
 
-/* --------------------------------- panes ---------------------------------- */
+/* ------------------------------ terminal pane ------------------------------ */
 
-function Pane({ id, node, refs, children, className = '' }) {
+function Pane({ rid, refs, title, className = '', style, children }) {
   return (
     <div
-      ref={(el) => (refs.current[id] = el)}
-      className={`absolute -translate-x-1/2 -translate-y-1/2 border border-line bg-panel/95 opacity-0 ${node.w} ${className}`}
-      style={{ left: `${node.x}%`, top: `${node.y}%` }}
+      ref={(el) => (refs.current[rid] = el)}
+      className={`absolute border border-line bg-panel/95 opacity-0 will-change-transform ${className}`}
+      style={style}
     >
       <div className="flex items-center gap-2 border-b border-line px-3 py-1.5">
-        <span className="h-2 w-2 rounded-full bg-amber/70" />
-        <span className="mono-label text-fog">{node.title}</span>
+        <span className="h-2 w-2 rounded-full bg-[#ff5f56]" data-dot />
+        <span className="mono-label text-fog">{title}</span>
       </div>
-      <div className="px-3 py-2 font-mono text-[10px] leading-relaxed text-paper/85 md:text-[11px]">
-        {children}
-      </div>
+      <div className="px-3 py-2 font-mono text-[10px] leading-relaxed md:text-[11px]">{children}</div>
+    </div>
+  )
+}
+
+function ErrLines({ rid, refs, lines }) {
+  return (
+    <div ref={(el) => (refs.current[rid] = el)}>
+      {lines.map((l, i) => (
+        <p key={i} data-line className="whitespace-pre text-[#ff8a80] transition-all duration-300">{l}</p>
+      ))}
     </div>
   )
 }
@@ -191,14 +169,14 @@ function Pane({ id, node, refs, children, className = '' }) {
 
 function FullHero() {
   const wrap = useRef(null)
-  const plane = useRef(null)
+  const stage = useRef(null)
   const refs = useRef({})
   const pRef = useRef(0)
 
   useEffect(() => {
     const R = refs.current
-    const edgeEls = EDGES.map((e) => ({ ...e, el: R[`edge-${e.id}`] }))
-    edgeEls.forEach((e) => { e.el.style.strokeDasharray = 1; e.el.style.strokeDashoffset = 1 })
+    const edgeEls = ARCH_EDGES.map((e, i) => R[`aedge-${i}`])
+    edgeEls.forEach((el) => { el.style.strokeDasharray = 1; el.style.strokeDashoffset = 1 })
 
     const show = (el, on) => { if (el) el.style.opacity = on ? 1 : 0 }
     const stream = (el, text, t) => {
@@ -206,37 +184,69 @@ function FullHero() {
       const n = Math.floor(t * text.length)
       el.textContent = t >= 1 ? text : n > 0 ? text.slice(0, n) + '▌' : ''
     }
+    // strike error lines one by one as fixes land
+    const heal = (container, t) => {
+      if (!container) return
+      const lines = container.querySelectorAll('[data-line]')
+      const done = Math.floor(t * (lines.length + 0.99))
+      lines.forEach((l, i) => {
+        if (i < done) l.className = 'whitespace-pre text-fog/40 line-through transition-all duration-300'
+        else l.className = 'whitespace-pre text-[#ff8a80] transition-all duration-300'
+      })
+    }
 
     const update = (p) => {
       pRef.current = p
-      const { s, y } = camAt(p)
-      plane.current.style.transform = `translateY(${y}%) scale(${s})`
 
-      show(R.task, p >= 0.13)
-      stream(R['task-txt'], TASK, seg(p, 0.15, 0.26))
-      show(R.router, p >= 0.28)
-      stream(R['router-txt'], ROUTES.join('\n'), seg(p, 0.29, 0.40))
+      // cinematic camera: slow push-in through chaos, settle for the graph
+      const z = 1.25 - seg(p, 0, 0.6) * 0.25 + seg(p, 0.88, 1) * 0.05
+      const drift = (1 - seg(p, 0, 0.55)) * 1.2
+      stage.current.style.transform = `scale(${z}) rotate(${drift * -0.6}deg)`
 
-      edgeEls.forEach((e) => { e.el.style.strokeDashoffset = 1 - seg(p, e.a, e.b) })
+      /* beat 1 — 0.00-0.30: errors everywhere */
+      show(R.errA, p > 0.03)
+      show(R.errB, p > 0.07)
+      show(R.errC, p > 0.11)
+      const errN = Math.round(12 * seg(p, 0.05, 0.25)) - Math.round(12 * seg(p, 0.34, 0.58))
+      if (R.count) {
+        R.count.textContent = `${Math.max(0, errN)} ERRORS`
+        R.count.style.color = errN > 0 ? '#ff5f56' : 'var(--color-amber)'
+      }
 
-      // parallel beat: all three stream over the SAME window — concurrency, not sequence
-      const t = seg(p, 0.40, 0.70)
-      ;['claude', 'codex', 'qwen'].forEach((k) => show(R[k], p >= 0.40))
-      stream(R['claude-txt'], CLAUDE_OUT, t)
-      stream(R['codex-txt'], CODEX_OUT, t)
-      stream(R['qwen-txt'], QWEN_OUT, t)
+      /* beat 2 — 0.30-0.60: the fix streams in, errors diminish */
+      show(R.fix, p > 0.30 && p < 0.66)
+      stream(R.fixtxt, FIX_DIFF, seg(p, 0.32, 0.56))
+      heal(R.errAlines, seg(p, 0.34, 0.52))
+      heal(R.errBlines, seg(p, 0.38, 0.56))
+      heal(R.errClines, seg(p, 0.42, 0.58))
+      // panes calm down: red dots turn amber as their pane heals
+      ;[['errA', 0.52], ['errB', 0.56], ['errC', 0.58]].forEach(([k, at]) => {
+        const dot = R[k]?.querySelector('[data-dot]')
+        if (dot) dot.style.background = p > at ? 'var(--color-amber)' : '#ff5f56'
+      })
 
-      show(R.merge, p >= 0.72)
-      stream(R['merge-txt'], MERGE_OUT, seg(p, 0.74, 0.83))
-      show(R.output, p >= 0.85)
-      stream(R['output-txt'], OUTPUT_DIFF, seg(p, 0.85, 0.95))
+      /* beat 3 — 0.60-0.90: error panes exit, architecture connects */
+      const exit = seg(p, 0.60, 0.68)
+      ;['errA', 'errB', 'errC'].forEach((k, i) => {
+        if (p > 0.60) R[k].style.opacity = 1 - exit
+        R[k].style.translate = `0 ${-exit * (30 + i * 14)}px`
+      })
+      show(R.arch, p > 0.62)
+      ARCH_NODES.forEach((n, i) => {
+        const t = seg(p, 0.62 + i * 0.008, 0.66 + i * 0.008)
+        const el = R[`anode-${n.id}`]
+        if (el) { el.style.opacity = t; el.style.scale = 0.8 + 0.2 * t }
+      })
+      edgeEls.forEach((el, i) => { el.style.strokeDashoffset = 1 - seg(p, ARCH_EDGES[i].a, ARCH_EDGES[i].b) })
+      show(R.packets, p > 0.80 && p < 0.97)
+      stream(R.status, STATUS_LINE, seg(p, 0.80, 0.88))
 
-      // handoff
-      const h = seg(p, 0.94, 1)
-      R.graph.style.opacity = 1 - h
+      /* beat 4 — handoff */
+      const h = seg(p, 0.92, 1)
+      R.scene.style.opacity = 1 - h
       R.handoff.style.opacity = h
       R.handoff.style.pointerEvents = h > 0.5 ? 'auto' : 'none'
-      R.hint.style.opacity = p < 0.05 ? 1 : 0
+      R.hint.style.opacity = p < 0.04 ? 1 : 0
     }
 
     const st = ScrollTrigger.create({
@@ -251,56 +261,56 @@ function FullHero() {
   }, [])
 
   return (
-    <section ref={wrap} id="top" className="relative h-[700vh]">
+    <section ref={wrap} id="top" className="relative h-[650vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
         <Canvas className="!absolute inset-0" camera={{ position: [0, 0, 11], fov: 50 }} dpr={[1, 1.5]}>
           <Particles pRef={pRef} />
         </Canvas>
 
-        {/* graph plane, 2.5D: perspective container, pan+zoom as f(p) */}
-        <div className="absolute inset-0" style={{ perspective: '1200px' }} ref={(el) => (refs.current.graph = el)}>
-          <div ref={plane} className="absolute inset-0 will-change-transform" style={{ transformStyle: 'preserve-3d' }}>
-            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              {EDGES.map((e) => (
-                <path
-                  key={e.id}
-                  ref={(el) => (refs.current[`edge-${e.id}`] = el)}
-                  d={e.d}
-                  pathLength="1"
-                  fill="none"
-                  stroke="var(--color-amber)"
-                  strokeOpacity="0.7"
-                  strokeWidth="1.2"
-                  vectorEffect="non-scaling-stroke"
-                />
-              ))}
-            </svg>
+        <div ref={(el) => (refs.current.scene = el)} className="absolute inset-0">
+          <div ref={stage} className="absolute inset-0 will-change-transform">
 
-            <Pane id="task" node={NODES.task} refs={refs}>
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['task-txt'] = el)} />
+            {/* error panes, deliberately askew — this is the chaos */}
+            <Pane rid="errA" refs={refs} title="build — failing" className="w-[min(460px,80vw)]" style={{ left: '12%', top: '18%', rotate: '-2.5deg' }}>
+              <ErrLines rid="errAlines" refs={refs} lines={ERR_BUILD} />
             </Pane>
-            <Pane id="router" node={NODES.router} refs={refs}>
-              <pre className="whitespace-pre" ref={(el) => (refs.current['router-txt'] = el)} />
+            <Pane rid="errB" refs={refs} title="prod logs — 03:12 AM" className="w-[min(430px,80vw)]" style={{ right: '10%', top: '30%', rotate: '1.8deg' }}>
+              <ErrLines rid="errBlines" refs={refs} lines={ERR_SERVER} />
             </Pane>
-            <Pane id="claude" node={NODES.claude} refs={refs} className="hidden md:block">
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['claude-txt'] = el)} />
+            <Pane rid="errC" refs={refs} title="ci pipeline" className="w-[300px]" style={{ left: '26%', top: '58%', rotate: '-1.2deg' }}>
+              <ErrLines rid="errClines" refs={refs} lines={ERR_CI} />
             </Pane>
-            <Pane id="codex" node={NODES.codex} refs={refs}>
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['codex-txt'] = el)} />
+
+            {/* the fix */}
+            <Pane rid="fix" refs={refs} title="fix — applying" className="w-[min(500px,86vw)] border-amber/60" style={{ left: '50%', top: '44%', translate: '-50% -50%', zIndex: 10 }}>
+              <pre className="whitespace-pre-wrap text-paper/90" ref={(el) => (refs.current.fixtxt = el)} />
             </Pane>
-            <Pane id="qwen" node={NODES.qwen} refs={refs} className="hidden md:block">
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['qwen-txt'] = el)} />
-            </Pane>
-            <Pane id="merge" node={NODES.merge} refs={refs}>
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['merge-txt'] = el)} />
-            </Pane>
-            <Pane id="output" node={NODES.output} refs={refs} className="border-amber/60">
-              <pre className="whitespace-pre-wrap" ref={(el) => (refs.current['output-txt'] = el)} />
-            </Pane>
+
+            {/* the architecture that emerges */}
+            <div ref={(el) => (refs.current.arch = el)} className="absolute left-1/2 top-1/2 h-[72vh] w-[min(760px,92vw)] -translate-x-1/2 -translate-y-1/2 opacity-0">
+              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {ARCH_EDGES.map((e, i) => (
+                  <path key={i} ref={(el) => (refs.current[`aedge-${i}`] = el)} d={e.d} pathLength="1" fill="none" stroke="var(--color-amber)" strokeOpacity="0.65" strokeWidth="1.1" vectorEffect="non-scaling-stroke" />
+                ))}
+                <g ref={(el) => (refs.current.packets = el)} className="opacity-0 transition-opacity duration-700">
+                  {ARCH_EDGES.map((e, i) => (
+                    <circle key={i} r="0.7" fill="var(--color-cyan)">
+                      <animateMotion dur={`${1.6 + (i % 3) * 0.5}s`} repeatCount="indefinite" path={e.d} />
+                    </circle>
+                  ))}
+                </g>
+              </svg>
+              {ARCH_NODES.map((n) => (
+                <div key={n.id} ref={(el) => (refs.current[`anode-${n.id}`] = el)} className="absolute -translate-x-1/2 -translate-y-1/2 border border-line bg-panel px-3 py-1.5 opacity-0" style={{ left: `${n.x}%`, top: `${n.y}%` }}>
+                  <span className="mono-label text-paper/85">{n.label}</span>
+                </div>
+              ))}
+              <p className="mono-label absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-cyan" ref={(el) => (refs.current.status = el)} />
+            </div>
           </div>
         </div>
 
-        {/* nameplate + nav, always present */}
+        {/* HUD: nameplate, nav, error counter */}
         <header className="absolute top-6 left-6 right-6 flex items-start justify-between md:top-10 md:left-12 md:right-12">
           <div>
             <p className="mono-label text-amber">ABDEL RAHMAN EL KOUCHE</p>
@@ -312,14 +322,14 @@ function FullHero() {
             <a className="hover:text-amber" href="#contact">CONTACT</a>
           </nav>
         </header>
-
+        <p ref={(el) => (refs.current.count = el)} className="mono-label absolute bottom-6 right-6 md:bottom-10 md:right-12" />
         <p ref={(el) => (refs.current.hint = el)} className="mono-label absolute bottom-6 left-1/2 -translate-x-1/2 text-fog transition-opacity duration-500">
-          SCROLL — ONE TASK, THREE MODELS, ONE CHANGE SET ▼
+          SCROLL ▼
         </p>
 
-        {/* handoff card */}
+        {/* handoff */}
         <div ref={(el) => (refs.current.handoff = el)} className="pointer-events-none absolute inset-0 flex flex-col items-start justify-end p-8 opacity-0 md:p-16">
-          <p className="mono-label text-cyan">THIS IS HOW I WORK</p>
+          <p className="mono-label text-cyan">THIS IS THE JOB</p>
           <h1 className="display mt-3 max-w-4xl text-4xl font-black uppercase leading-[0.95] md:text-7xl">
             Ambiguity in. <span className="text-amber">Working software out.</span>
           </h1>
@@ -329,7 +339,7 @@ function FullHero() {
   )
 }
 
-/* ----------------- static fallback: mobile / reduced motion ---------------- */
+/* ----------------- static fallback: mobile / no WebGL ---------------------- */
 
 function StaticHero() {
   return (
@@ -341,13 +351,10 @@ function StaticHero() {
         <h1 className="display mt-10 text-4xl font-black uppercase leading-[0.95]">
           Ambiguity in. <span className="text-amber">Working software out.</span>
         </h1>
-        <p className="mono-label mt-8 text-cyan">UNICODE ORCHESTRATOR — ONE TASK, THREE MODELS, ONE CHANGE SET</p>
-        {[['task', TASK], ['router', ROUTES.join('\n')], ['claude · architecture', CLAUDE_OUT], ['codex · implementation', CODEX_OUT], ['qwen · tests', QWEN_OUT], ['merge', MERGE_OUT], ['output · reviewable diff', OUTPUT_DIFF]].map(([title, body]) => (
-          <div key={title} className="mt-4 border border-line bg-panel/95">
-            <p className="mono-label border-b border-line px-3 py-1.5 text-fog">{title}</p>
-            <pre className="whitespace-pre-wrap px-3 py-2 font-mono text-[11px] leading-relaxed text-paper/85">{body}</pre>
-          </div>
-        ))}
+        <div className="mt-8 border border-line bg-panel/95">
+          <p className="mono-label border-b border-line px-3 py-1.5 text-fog">before → after</p>
+          <pre className="whitespace-pre-wrap px-3 py-2 font-mono text-[11px] leading-relaxed text-paper/85">{`${ERR_SERVER.join('\n')}\n\n${FIX_DIFF}\n\n${STATUS_LINE}`}</pre>
+        </div>
       </div>
     </section>
   )
@@ -356,9 +363,6 @@ function StaticHero() {
 export default function Hero() {
   const [full, setFull] = useState(null)
   useEffect(() => {
-    // static only for small screens or missing WebGL; OS reduced-motion no longer
-    // downgrades desktop — it kept serving the text fallback on machines with
-    // Windows animation effects turned off
     const small = window.matchMedia('(max-width: 767px)').matches
     let webgl = false
     try {

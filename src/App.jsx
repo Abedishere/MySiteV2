@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
@@ -69,12 +69,36 @@ const STACK = ['Python', 'C#', '.NET', 'Java', 'React', 'Flask', 'PostgreSQL', '
 
 /* ------------------------------- statement -------------------------------- */
 
+const THESIS_A = 'I take ambiguous problems and turn them into '
+const THESIS_B = 'structured, usable systems.'
+
 function Statement() {
+  const a = useRef(null)
+  const b = useRef(null)
+  const sec = useRef(null)
+
+  useEffect(() => {
+    const total = THESIS_A.length + THESIS_B.length
+    const st = ScrollTrigger.create({
+      trigger: sec.current,
+      start: 'top 75%',
+      end: 'top 15%',
+      scrub: true,
+      onUpdate: (self) => {
+        const n = Math.floor(self.progress * total)
+        a.current.textContent = THESIS_A.slice(0, n)
+        b.current.textContent = n > THESIS_A.length ? THESIS_B.slice(0, n - THESIS_A.length) : ''
+        b.current.dataset.cursor = self.progress < 1 ? '▌' : ''
+      },
+    })
+    return () => st.kill()
+  }, [])
+
   return (
-    <section className="blueprint border-y border-line px-8 py-28 md:px-16 md:py-40">
+    <section ref={sec} className="blueprint border-y border-line px-8 py-28 md:px-16 md:py-40">
       <p className="mono-label text-amber">THESIS</p>
-      <h2 className="display mt-6 max-w-5xl text-4xl font-black uppercase leading-[1.02] md:text-7xl" data-reveal>
-        I take ambiguous problems and turn them into <span className="text-amber">structured, usable systems.</span>
+      <h2 className="display mt-6 min-h-[2.1em] max-w-5xl text-4xl font-black uppercase leading-[1.02] md:text-7xl">
+        <span ref={a} /><span ref={b} className="text-amber after:content-[attr(data-cursor)]" />
       </h2>
       <div className="mt-12 flex flex-wrap gap-x-12 gap-y-4">
         {['I start by reducing ambiguity.', 'I map the problem into components.', 'I connect the system around the user outcome.', 'The output has to work, not just look good.'].map((t, i) => (
