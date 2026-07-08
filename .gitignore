@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.idea/
+graphify-out/
+.claude/
+.codex/
+.orchestrator/
+.graphify-init
+CLAUDE.md
+AGENTS.md
