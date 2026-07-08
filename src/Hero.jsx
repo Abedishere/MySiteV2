@@ -366,13 +366,14 @@ function StaticHero() {
 export default function Hero() {
   const [full, setFull] = useState(null)
   useEffect(() => {
-    const small = window.matchMedia('(max-width: 767px)').matches
+    // everyone gets the full scene; StaticHero only if the device truly can't
+    // do WebGL (otherwise the canvas would just render blank)
     let webgl = false
     try {
       const c = document.createElement('canvas')
       webgl = !!(c.getContext('webgl2') || c.getContext('webgl'))
     } catch { /* no webgl */ }
-    setFull(!small && webgl)
+    setFull(webgl)
   }, [])
   if (full === null) return <section className="h-screen" />
   return full ? <FullHero /> : <StaticHero />
