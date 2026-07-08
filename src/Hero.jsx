@@ -290,18 +290,18 @@ function FullHero() {
             <div ref={(el) => (refs.current.arch = el)} className="absolute left-1/2 top-1/2 h-[72vh] w-[min(760px,92vw)] -translate-x-1/2 -translate-y-1/2 opacity-0">
               <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 {ARCH_EDGES.map((e, i) => (
-                  <path key={i} ref={(el) => (refs.current[`aedge-${i}`] = el)} d={e.d} pathLength="1" fill="none" stroke="var(--color-amber)" strokeOpacity="0.65" strokeWidth="1.1" vectorEffect="non-scaling-stroke" />
+                  <path key={i} ref={(el) => (refs.current[`aedge-${i}`] = el)} d={e.d} pathLength="1" fill="none" stroke="var(--color-cyan)" strokeOpacity="0.95" strokeWidth="1.6" vectorEffect="non-scaling-stroke" style={{ filter: 'drop-shadow(0 0 3px rgba(79,216,224,0.6))' }} />
                 ))}
                 <g ref={(el) => (refs.current.packets = el)} className="opacity-0 transition-opacity duration-700">
                   {ARCH_EDGES.map((e, i) => (
-                    <circle key={i} r="0.7" fill="var(--color-cyan)">
+                    <circle key={i} r="0.7" fill="var(--color-amber)">
                       <animateMotion dur={`${1.6 + (i % 3) * 0.5}s`} repeatCount="indefinite" path={e.d} />
                     </circle>
                   ))}
                 </g>
               </svg>
               {ARCH_NODES.map((n) => (
-                <div key={n.id} ref={(el) => (refs.current[`anode-${n.id}`] = el)} className="absolute -translate-x-1/2 -translate-y-1/2 border border-line bg-panel px-3 py-1.5 opacity-0" style={{ left: `${n.x}%`, top: `${n.y}%` }}>
+                <div key={n.id} ref={(el) => (refs.current[`anode-${n.id}`] = el)} className="absolute -translate-x-1/2 -translate-y-1/2 border border-cyan/50 bg-panel px-3 py-1.5 opacity-0" style={{ left: `${n.x}%`, top: `${n.y}%` }}>
                   <span className="mono-label text-paper/85">{n.label}</span>
                 </div>
               ))}
@@ -313,8 +313,8 @@ function FullHero() {
         {/* HUD: nameplate, nav, error counter */}
         <header className="absolute top-6 left-6 right-6 flex items-start justify-between md:top-10 md:left-12 md:right-12">
           <div>
-            <p className="mono-label text-amber">ABDEL RAHMAN EL KOUCHE</p>
-            <p className="mono-label mt-1 text-fog">SOFTWARE / AI ENGINEER — BEIRUT</p>
+            <p className="mono-label !text-[0.8125rem] font-semibold text-paper [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">ABDEL RAHMAN EL KOUCHE</p>
+            <p className="mono-label mt-1 text-amber [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">SOFTWARE / AI ENGINEER — BEIRUT</p>
           </div>
           <nav className="mono-label hidden gap-6 text-fog md:flex">
             <a className="hover:text-amber" href="#projects">PROJECTS</a>

@@ -81,8 +81,9 @@ function Statement() {
     const total = THESIS_A.length + THESIS_B.length
     const st = ScrollTrigger.create({
       trigger: sec.current,
-      start: 'top 75%',
-      end: 'top 15%',
+      start: 'top 40%',
+      end: '+=120%',
+      pin: true,
       scrub: true,
       onUpdate: (self) => {
         const n = Math.floor(self.progress * total)
