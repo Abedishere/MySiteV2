@@ -8,3 +8,5 @@ graphify-out/
 .graphify-init
 CLAUDE.md
 AGENTS.md
+*.local.md
+.secrets/
