@@ -346,7 +346,7 @@ function FullHero() {
 
 function StaticHero() {
   return (
-    <section id="top" className="relative overflow-hidden px-6 py-16">
+    <section id="top" className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 py-16">
       <video src="/hero-scrub.mp4" autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="relative">
         <p className="mono-label text-amber">ABDEL RAHMAN EL KOUCHE</p>
