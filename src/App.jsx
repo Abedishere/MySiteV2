@@ -100,8 +100,8 @@ function Statement() {
   }, [])
 
   return (
-    <section ref={sec} className="blueprint border-y border-line px-8 py-28 md:px-16 md:py-40">
-      <div ref={inner}>
+    <section ref={sec} className="relative">
+      <div ref={inner} className="blueprint border-y border-line px-8 py-28 md:px-16 md:py-40">
       <p className="mono-label text-amber">THESIS</p>
       <h2 className="display mt-6 min-h-[2.1em] max-w-5xl text-4xl font-black uppercase leading-[1.02] md:text-7xl">
         <span ref={a} /><span ref={b} className="text-amber after:content-[attr(data-cursor)]" />
@@ -208,7 +208,7 @@ function Contact() {
   return (
     <footer id="contact" className="px-8 py-28 md:px-16 md:py-36">
       <p className="mono-label text-amber">04 / CONTACT</p>
-      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=abdelrahmanelkouche@gmail.com" target="_blank" rel="noreferrer" className="display mt-6 block break-all text-3xl font-black uppercase leading-tight transition-colors hover:text-amber md:text-6xl" data-reveal>
+      <a href="mailto:abdelrahmanelkouche@gmail.com" className="display mt-6 block break-all text-3xl font-black uppercase leading-tight transition-colors hover:text-amber md:text-6xl" data-reveal>
         abdelrahmanelkouche<br />@gmail.com
       </a>
       <div className="mt-12 flex flex-wrap gap-8">
