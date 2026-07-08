@@ -76,14 +76,17 @@ function Statement() {
   const a = useRef(null)
   const b = useRef(null)
   const sec = useRef(null)
+  const inner = useRef(null)
 
   useEffect(() => {
     const total = THESIS_A.length + THESIS_B.length
     const st = ScrollTrigger.create({
       trigger: sec.current,
+      // pin the inner div, not the section: pin-spacer must not be inserted
+      // between React-managed siblings of <main> or reconciliation crashes
+      pin: inner.current,
       start: 'top 40%',
       end: '+=120%',
-      pin: true,
       scrub: true,
       onUpdate: (self) => {
         const n = Math.floor(self.progress * total)
@@ -92,11 +95,13 @@ function Statement() {
         b.current.dataset.cursor = self.progress < 1 ? '▌' : ''
       },
     })
-    return () => st.kill()
+    // kill(true) reverts the pin-spacer DOM mutation, otherwise React crashes on remount
+    return () => st.kill(true)
   }, [])
 
   return (
     <section ref={sec} className="blueprint border-y border-line px-8 py-28 md:px-16 md:py-40">
+      <div ref={inner}>
       <p className="mono-label text-amber">THESIS</p>
       <h2 className="display mt-6 min-h-[2.1em] max-w-5xl text-4xl font-black uppercase leading-[1.02] md:text-7xl">
         <span ref={a} /><span ref={b} className="text-amber after:content-[attr(data-cursor)]" />
@@ -105,6 +110,7 @@ function Statement() {
         {['I start by reducing ambiguity.', 'I map the problem into components.', 'I connect the system around the user outcome.', 'The output has to work, not just look good.'].map((t, i) => (
           <p key={t} className="mono-label text-fog" data-reveal>{String(i).padStart(2, '0')} — {t}</p>
         ))}
+      </div>
       </div>
     </section>
   )

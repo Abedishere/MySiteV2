@@ -96,7 +96,7 @@ function Particles({ pRef }) {
     mat.current.uniforms.uP.value = seg(p, 0.15, 0.65)
     mat.current.uniforms.uT.value = clock.elapsedTime
     mat.current.uniforms.uRed.value = 1 - seg(p, 0.3, 0.6)
-    mat.current.uniforms.uO.value = 0.85 - seg(p, 0.6, 0.9) * 0.65
+    mat.current.uniforms.uO.value = 0.85 - seg(p, 0.55, 0.75) * 0.72
   })
 
   return (
@@ -120,7 +120,7 @@ function Particles({ pRef }) {
             vTint = step(0.8, fract(position.x * 13.7));
             vec4 mv = modelViewMatrix * vec4(pos, 1.0);
             gl_Position = projectionMatrix * mv;
-            gl_PointSize = 2.4 * (140.0 / -mv.z);
+            gl_PointSize = 2.0 * (40.0 / -mv.z);
           }`}
         fragmentShader={`
           uniform float uO; uniform float uRed;
@@ -257,6 +257,9 @@ function FullHero() {
       onUpdate: (self) => update(self.progress),
     })
     update(0)
+    // hero mounts after the gate's placeholder, growing the page by 550vh —
+    // every other trigger measured against the old layout, so re-measure
+    ScrollTrigger.refresh()
     return () => st.kill()
   }, [])
 
