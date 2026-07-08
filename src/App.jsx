@@ -1,17 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from 'lenis'
+import Hero from './Hero.jsx'
 
 gsap.registerPlugin(ScrollTrigger)
 
 /* ---------------------------------- data ---------------------------------- */
-
-const BEATS = [
-  { at: 0.0, label: '00 / INPUT', title: 'Ambiguity in.', body: 'Messy requirements, scattered constraints, half-formed ideas.' },
-  { at: 0.3, label: '01 / STRUCTURE', title: 'Map the problem.', body: 'Inputs, logic, models and interfaces get separated and named.' },
-  { at: 0.58, label: '02 / SYSTEM', title: 'Connect the parts.', body: 'Backend, data, and AI layers wired around the user outcome.' },
-  { at: 0.85, label: '03 / OUTPUT', title: 'Working software out.', body: 'Not a diagram. A product someone can actually use.' },
-]
 
 const PROJECTS = [
   {
@@ -71,101 +66,6 @@ const EXPERIENCE = [
 ]
 
 const STACK = ['Python', 'C#', '.NET', 'Java', 'React', 'Flask', 'PostgreSQL', 'Docker', 'Kubernetes', 'Git', 'LLM pipelines', 'QLoRA fine-tuning']
-
-/* ---------------------------------- hero ---------------------------------- */
-
-function Hero() {
-  const wrap = useRef(null)
-  const video = useRef(null)
-
-  useEffect(() => {
-    const v = video.current
-    v.pause()
-    let target = 0
-    let raf
-    let activeBeat = -1
-    const beatEls = BEATS.map((_, i) => wrap.current.querySelector(`[data-beat="${i}"]`))
-
-    // ponytail: lerped seek at most ~30x/s; all-intra encode makes each seek cheap
-    const tick = () => {
-      if (v.duration && v.readyState >= 2 && !v.seeking) {
-        const want = target * Math.max(v.duration - 0.05, 0)
-        const delta = want - v.currentTime
-        if (Math.abs(delta) > 1 / 30) v.currentTime += delta * 0.25
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: wrap.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        onUpdate: (self) => {
-          target = self.progress
-          // only tween beat overlays when the active beat actually changes
-          let idx = BEATS.length - 1
-          while (idx > 0 && self.progress < BEATS[idx].at) idx--
-          if (idx !== activeBeat) {
-            if (activeBeat >= 0) gsap.to(beatEls[activeBeat], { autoAlpha: 0, y: 24, duration: 0.35, overwrite: 'auto' })
-            gsap.to(beatEls[idx], { autoAlpha: 1, y: 0, duration: 0.45, overwrite: 'auto' })
-            activeBeat = idx
-          }
-        },
-      })
-    }, wrap)
-    return () => { ctx.revert(); cancelAnimationFrame(raf) }
-  }, [])
-
-  return (
-    <section ref={wrap} id="top" className="relative h-[420vh]">
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <video
-          ref={video}
-          src="/hero-scrub.mp4"
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-transparent to-ink" />
-
-        {/* HUD frame */}
-        <div className="pointer-events-none absolute inset-4 border border-line md:inset-8">
-          <span className="absolute -top-px -left-px h-4 w-4 border-t-2 border-l-2 border-amber" />
-          <span className="absolute -top-px -right-px h-4 w-4 border-t-2 border-r-2 border-amber" />
-          <span className="absolute -bottom-px -left-px h-4 w-4 border-b-2 border-l-2 border-amber" />
-          <span className="absolute -bottom-px -right-px h-4 w-4 border-b-2 border-r-2 border-amber" />
-        </div>
-
-        {/* name plate */}
-        <header className="absolute top-8 left-8 right-8 flex items-start justify-between md:top-14 md:left-16 md:right-16">
-          <div>
-            <p className="mono-label text-amber">ABDEL RAHMAN EL KOUCHE</p>
-            <p className="mono-label mt-1 text-fog">SOFTWARE / AI ENGINEER — BEIRUT</p>
-          </div>
-          <nav className="mono-label hidden gap-6 text-fog md:flex">
-            <a className="pointer-events-auto hover:text-amber" href="#projects">PROJECTS</a>
-            <a className="pointer-events-auto hover:text-amber" href="#experience">EXPERIENCE</a>
-            <a className="pointer-events-auto hover:text-amber" href="#contact">CONTACT</a>
-          </nav>
-        </header>
-
-        {/* scroll beats */}
-        {BEATS.map((b, i) => (
-          <div key={b.label} data-beat={i} className="absolute bottom-16 left-8 max-w-xl opacity-0 md:bottom-24 md:left-16">
-            <p className="mono-label text-cyan">{b.label}</p>
-            <h1 className="display mt-3 text-5xl font-black uppercase leading-[0.95] md:text-8xl">{b.title}</h1>
-            <p className="mt-4 max-w-md text-base text-fog md:text-lg">{b.body}</p>
-          </div>
-        ))}
-
-        <p className="mono-label absolute bottom-8 right-8 text-fog md:right-16">SCROLL TO RESOLVE ▼</p>
-      </div>
-    </section>
-  )
-}
 
 /* ------------------------------- statement -------------------------------- */
 
@@ -294,6 +194,13 @@ function Contact() {
 
 export default function App() {
   useEffect(() => {
+    // Lenis smooth scroll, tuned light so the trackpad still feels like a trackpad
+    const lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 1 })
+    lenis.on('scroll', ScrollTrigger.update)
+    const raf = (time) => lenis.raf(time * 1000)
+    gsap.ticker.add(raf)
+    gsap.ticker.lagSmoothing(0)
+
     const ctx = gsap.context(() => {
       gsap.utils.toArray('[data-reveal]').forEach((el) => {
         gsap.from(el, {
@@ -305,7 +212,7 @@ export default function App() {
         })
       })
     })
-    return () => ctx.revert()
+    return () => { ctx.revert(); gsap.ticker.remove(raf); lenis.destroy() }
   }, [])
 
   return (
