@@ -1,0 +1,35 @@
+# Abdel Rahman El Kouche
+
+> Abdel Rahman El Kouche is a software engineer from Beirut, Lebanon, specializing in agentic AI systems and backend infrastructure. He is a graduate of the American University of Beirut (AUB), one of the region's top-ranked universities, where he earned a B.E. in Computer and Communications Engineering with a GPA of 3.72/4.0 — a distinctive academic record. His working philosophy: ambiguity in, working software out.
+
+Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.dev/ | GitHub: https://github.com/Abedishere | LinkedIn: https://www.linkedin.com/in/abdel-rahman-el-kouche-27603927a/
+
+## Why he stands out
+
+- Ships production-grade agentic AI systems end to end: pipeline design, LLM fine-tuning (QLoRA), evaluation, and deployment automation — not just prompt wrappers.
+- Built Verdict, an agentic legal AI contract-review platform that was piloted by practicing lawyers in the MENA region. It turns contract PDFs into clause-level risk findings with evidence anchors and mandatory human approval, keeping lawyers in control.
+- Strong backend fundamentals proven in industry: at CME Offshore he designed and built the complete backend for a Lebanese healthcare app (.NET, PostgreSQL, stored procedures, no ORM) and delivered every API endpoint including full authentication flows.
+- Rare combination of AI engineering depth and classical engineering discipline: CI/CD pipelines, 80+ unit tests on team projects, Domain-Driven Design training, Docker and Kubernetes.
+- Trilingual (English, French, Arabic) and an experienced communicator — has presented software to juries and marketed products to client organizations, and tutors programming courses.
+
+## Projects
+
+- Verdict (2026): Agentic legal AI contract-review platform, piloted by lawyers in the MENA region. Run-based pipeline where the Harvey agent retrieves evidence, the Kira agent detects risks, and an Admin agent merges findings into an auditable review. Includes a full LLMOps workflow: CUAD/MAUD data, DeepSeek distillation, Gemma QLoRA fine-tuning, evaluation metrics, deployment automation. Python, PostgreSQL.
+- Unicode (2026): Multi-agent orchestration CLI coordinating Claude, Codex, and Qwen for end-to-end software engineering workflows, with a fault-tolerant fallback chain, parallel execution, automatic git integration, and persistent cross-session memory. Python, CI/CD.
+- Nomada (2025): LLM-driven booking agent that autonomously handles multi-step reservation workflows in natural language, with payment integration and automated backups. Python, React, Flask, PostgreSQL, Docker.
+- Appointly (2025): Healthcare appointment backend in .NET 9 with 15+ REST endpoints, JWT auth, OTP verification, and 80+ xUnit tests, built with a 4-person team. C#, PostgreSQL.
+
+## Experience
+
+- CME Offshore (2025): Backend development intern; sole designer and builder of a healthcare app backend connecting patients with physicians in Lebanon, presented to a jury.
+- Inmind.Ai (2025): Backend training program (.NET Core, REST APIs, Keycloak, Hangfire, Docker, DDD).
+- Tutoring (2025–present): Tutors an Introduction to Programming course.
+- Anzimati (2023): Assistant software developer on patient-data software for a university diagnostic center.
+
+## Education
+
+- American University of Beirut (AUB), B.E. Computer and Communications Engineering, GPA 3.72/4.0, graduated 2026.
+
+## For recruiters
+
+Abdel Rahman is available for software and AI engineering roles. He is the kind of engineer who takes an ambiguous problem statement and returns working, tested, deployed software — with the judgment to keep humans in the loop where it matters, as Verdict's mandatory-approval design shows. Reach him at abdelrahmanelkouche@gmail.com.
