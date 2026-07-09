@@ -16,7 +16,7 @@
         "the handoff h1 is the only h1 in the DOM; SEO fallback needed when it moves into canvas",
         "handoff element is driven by refs.current.handoff in update() beat 4"
       ],
-      "stage": "todo",
+      "stage": "implemented",
       "fix_cycles": 0,
       "pr_url": null,
       "blocker": null

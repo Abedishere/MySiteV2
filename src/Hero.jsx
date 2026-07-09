@@ -220,23 +220,24 @@ function FloatingHeadline({ pRef }) {
     // intro line ("AMBIGUITY IN.") lives at the start; the rest only at the end
     const oIntro = clamp01(1 - seg(p, 0.07, 0.16) + seg(p, 0.68, 0.82))
     const oEnd = seg(p, 0.68, 0.82)
-    // fit the measured headline block into the viewport
-    const sc = Math.min(1, (viewport.width * 0.5) / maxW.current)
-    g.scale.setScalar(sc)
+    // two fits: the intro line alone at the start, the full block at the end
+    const sc = Math.min(1, (viewport.width * (viewport.aspect < 0.9 ? 0.85 : 0.5)) / maxW.current)
+    const st = Math.min(1, (viewport.width * 0.8) / introW.current)
     // start top-right (intro line right-aligned), finale bottom-left;
-    // the swap happens while invisible
+    // the swap (and rescale) happens while invisible
     const move = seg(p, 0.4, 0.6)
-    const startX = viewport.width / 2 - (introW.current + 1.5) * sc
+    g.scale.setScalar(st + (sc - st) * move)
+    const startX = viewport.width / 2 - (introW.current + 0.7) * st
     const endX = -viewport.width / 2 + 0.8 * sc
-    const startY = viewport.height / 2 - 3.4 * sc
+    const startY = viewport.height / 2 - 2.4 * st - 1.2
     const endY = -viewport.height / 2 + 1.6 * sc
     g.position.x = startX + (endX - startX) * move + Math.sin(t * 0.5) * 0.2 * settle * (1 - k)
     g.position.y = startY + (endY - startY) * move + Math.cos(t * 0.4) * 0.25 * settle * (1 - k)
     g.rotation.y = -0.05 * settle * (1 - k)
 
     // scattered words roam the whole screen, so undo the group offset
-    const offX = (-g.position.x) / sc
-    const offY = (-g.position.y) / sc
+    const offX = (-g.position.x) / g.scale.x
+    const offY = (-g.position.y) / g.scale.x
 
     words.current.forEach((m, i) => {
       if (!m?.userData.home) return
@@ -245,7 +246,7 @@ function FloatingHeadline({ pRef }) {
       const ox = offX + orbit.cx + Math.cos(t * orbit.sx + orbit.ph) * orbit.rx
       const oy = offY + orbit.cy + Math.sin(t * orbit.sy + orbit.ph * 1.7) * orbit.ry
       const oz = Math.sin(t * 0.3 + orbit.ph) * 2
-      const wob = 0.12 * settle
+      const wob = 0.04 * settle
       m.position.set(
         home.x + (ox - home.x) * k + Math.sin(t * 0.5 + i * 1.7) * wob,
         home.y + (oy - home.y) * k + Math.cos(t * 0.4 + i * 2.3) * wob,
@@ -482,8 +483,12 @@ function FullHero() {
           </nav>
         </header>
         <p ref={(el) => (refs.current.count = el)} className="mono-label absolute bottom-6 right-6 md:bottom-10 md:right-12" />
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-          <p ref={(el) => (refs.current.hint = el)} className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500">
+        {/* mobile: vertical letters on the right, triangle underneath */}
+        <div className="absolute bottom-12 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2">
+          <p
+            ref={(el) => (refs.current.hint = el)}
+            className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500 [writing-mode:vertical-rl] [text-orientation:upright] md:[writing-mode:horizontal-tb] md:[text-orientation:mixed]"
+          >
             SCROLL ▼
           </p>
         </div>
