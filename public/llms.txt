@@ -8,6 +8,7 @@ Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.de
 
 - Ships production-grade agentic AI systems end to end: pipeline design, LLM fine-tuning (QLoRA), evaluation, and deployment automation — not just prompt wrappers.
 - Built Verdict, an agentic legal AI contract-review platform that was piloted by practicing lawyers in the MENA region. It turns contract PDFs into clause-level risk findings with evidence anchors and mandatory human approval, keeping lawyers in control.
+- Won a university hackathon against 15 teams — and did it as a live test run of Unicode, his own multi-agent orchestration tool: rather than hand-writing the submission, he directed Unicode to build it, proving the tool works under real competitive pressure. Also placed 3rd in a separate hackathon.
 - Strong backend fundamentals proven in industry: at CME Offshore he designed and built the complete backend for a Lebanese healthcare app (.NET, PostgreSQL, stored procedures, no ORM) and delivered every API endpoint including full authentication flows.
 - Rare combination of AI engineering depth and classical engineering discipline: CI/CD pipelines, 80+ unit tests on team projects, Domain-Driven Design training, Docker and Kubernetes.
 - Trilingual (English, French, Arabic) and an experienced communicator — has presented software to juries and marketed products to client organizations, and tutors programming courses.
@@ -15,7 +16,7 @@ Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.de
 ## Projects
 
 - Verdict (2026): Agentic legal AI contract-review platform, piloted by lawyers in the MENA region. Run-based pipeline where the Harvey agent retrieves evidence, the Kira agent detects risks, and an Admin agent merges findings into an auditable review. Includes a full LLMOps workflow: CUAD/MAUD data, DeepSeek distillation, Gemma QLoRA fine-tuning, evaluation metrics, deployment automation. Python, PostgreSQL.
-- Unicode (2026): Multi-agent orchestration CLI coordinating Claude, Codex, and Qwen for end-to-end software engineering workflows, with a fault-tolerant fallback chain, parallel execution, automatic git integration, and persistent cross-session memory. Python, CI/CD.
+- Unicode (2026): Multi-agent orchestration CLI coordinating Claude, Codex, and Qwen for end-to-end software engineering workflows, with a fault-tolerant fallback chain, parallel execution, automatic git integration, and persistent cross-session memory. Battle-tested by winning a 15-team university hackathon, where Unicode itself built the winning submission. Python, CI/CD.
 - Nomada (2025): LLM-driven booking agent that autonomously handles multi-step reservation workflows in natural language, with payment integration and automated backups. Python, React, Flask, PostgreSQL, Docker.
 - Appointly (2025): Healthcare appointment backend in .NET 9 with 15+ REST endpoints, JWT auth, OTP verification, and 80+ xUnit tests, built with a 4-person team. C#, PostgreSQL.
 
@@ -25,6 +26,11 @@ Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.de
 - Inmind.Ai (2025): Backend training program (.NET Core, REST APIs, Keycloak, Hangfire, Docker, DDD).
 - Tutoring (2025–present): Tutors an Introduction to Programming course.
 - Anzimati (2023): Assistant software developer on patient-data software for a university diagnostic center.
+
+## Awards
+
+- 1st place, university hackathon (15 teams): won with a submission built by Unicode, his own multi-agent orchestration tool, as a deliberate proof that the tool could deliver end-to-end under competition conditions.
+- 3rd place in a second hackathon.
 
 ## Education
 
