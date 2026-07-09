@@ -184,8 +184,8 @@ function FloatingHeadline({ pRef }) {
           cy: (Math.random() - 0.5) * 7,
           rx: 3.5 + Math.random() * 4,
           ry: 2.5 + Math.random() * 3,
-          sx: 0.25 + Math.random() * 0.3,
-          sy: 0.25 + Math.random() * 0.3,
+          sx: 0.06 + Math.random() * 0.1,
+          sy: 0.06 + Math.random() * 0.1,
           ph: Math.random() * Math.PI * 2,
         }
         // full-turn range: some words flip upside down, some turn away
@@ -194,11 +194,11 @@ function FloatingHeadline({ pRef }) {
           (Math.random() - 0.5) * Math.PI * 2,
           (Math.random() - 0.5) * Math.PI * 2,
         )
-        // continuous tumble while scattered — slow, so it reads as drift
+        // continuous tumble while scattered — barely turning, adrift in space
         m.userData.spin = new THREE.Vector3(
-          (Math.random() - 0.5) * 0.4,
-          (Math.random() - 0.5) * 0.5,
-          (Math.random() - 0.5) * 0.35,
+          (Math.random() - 0.5) * 0.12,
+          (Math.random() - 0.5) * 0.16,
+          (Math.random() - 0.5) * 0.1,
         )
         x += bb.max.x - bb.min.x + line.size * 0.55
         maxW.current = Math.max(maxW.current, x)
@@ -215,7 +215,8 @@ function FloatingHeadline({ pRef }) {
     const settle = 1 - seg(p, 0.85, 0.97) // drift dies as the scene resolves
     // scatter as the first error pane lands, gone by the second;
     // back scattered with the fix, re-attached for the finale
-    const k = seg(p, 0.03, 0.12) * (1 - seg(p, 0.74, 0.92))
+    // ease the drift-apart and the fall-into-place so nothing snaps
+    const k = seg(p, 0.03, 0.18) * (1 - seg(p, 0.7, 0.94))
     // intro line ("AMBIGUITY IN.") lives at the start; the rest only at the end
     const oIntro = clamp01(1 - seg(p, 0.07, 0.16) + seg(p, 0.68, 0.82))
     const oEnd = seg(p, 0.68, 0.82)
