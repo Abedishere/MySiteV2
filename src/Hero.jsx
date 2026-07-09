@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Text } from '@react-three/drei'
 import * as THREE from 'three'
+import monoFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff'
+import monoBoldFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -137,6 +140,46 @@ function Particles({ pRef }) {
   )
 }
 
+/* ------------- floating headline: readable from frame one ------------------ */
+
+function FloatingHeadline({ pRef }) {
+  const group = useRef()
+  const texts = useRef([])
+  const { viewport } = useThree()
+  // fit the widest line ("WORKING SOFTWARE OUT.") into the viewport
+  const s = Math.min(1, viewport.width / 17)
+
+  useFrame(({ clock }) => {
+    const g = group.current
+    if (!g) return
+    const p = pRef.current
+    const t = clock.elapsedTime
+    const settle = 1 - seg(p, 0.88, 1) // drift dies as the scene resolves
+    g.position.x = -viewport.width * 0.42 + Math.sin(t * 0.5) * 0.25 * settle
+    g.position.y = -viewport.height * 0.18 + Math.cos(t * 0.4) * 0.3 * settle
+    g.rotation.z = Math.sin(t * 0.3) * 0.02 * settle
+    g.rotation.y = Math.sin(t * 0.25) * 0.07 * settle
+    // recede while the fix/architecture beats take the stage, return for the finale
+    const dim = 1 - 0.65 * seg(p, 0.2, 0.35) * (1 - seg(p, 0.78, 0.9))
+    texts.current.forEach((el) => { if (el?.material) el.material.opacity = dim })
+  })
+
+  const line = (i) => (el) => (texts.current[i] = el)
+  return (
+    <group ref={group} scale={s} position={[0, 0, 2]}>
+      <Text ref={line(0)} font={monoFont} fontSize={0.26} letterSpacing={0.25} color="#4fd8e0" anchorX="left" anchorY="bottom" position={[0, 1.85, 0]}>
+        THIS IS THE JOB
+      </Text>
+      <Text ref={line(1)} font={monoBoldFont} fontSize={0.72} color="#f2f1ec" anchorX="left" anchorY="bottom" position={[0, 0.9, 0]}>
+        AMBIGUITY IN.
+      </Text>
+      <Text ref={line(2)} font={monoBoldFont} fontSize={0.72} color="#ffb224" anchorX="left" anchorY="bottom" position={[0, 0, 0]}>
+        WORKING SOFTWARE OUT.
+      </Text>
+    </group>
+  )
+}
+
 /* ------------------------------ terminal pane ------------------------------ */
 
 function Pane({ rid, refs, title, className = '', style, children }) {
@@ -241,11 +284,8 @@ function FullHero() {
       show(R.packets, p > 0.80 && p < 0.97)
       stream(R.status, STATUS_LINE, seg(p, 0.80, 0.88))
 
-      /* beat 4 — handoff */
-      const h = seg(p, 0.92, 1)
-      R.scene.style.opacity = 1 - h
-      R.handoff.style.opacity = h
-      R.handoff.style.pointerEvents = h > 0.5 ? 'auto' : 'none'
+      /* beat 4 — scene clears, the floating headline settles on its own */
+      R.scene.style.opacity = 1 - seg(p, 0.92, 1)
       R.hint.style.opacity = p < 0.5 ? 1 : 0
     }
 
@@ -268,7 +308,9 @@ function FullHero() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <Canvas className="!absolute inset-0" camera={{ position: [0, 0, 11], fov: 50 }} dpr={[1, 1.5]}>
           <Particles pRef={pRef} />
+          <FloatingHeadline pRef={pRef} />
         </Canvas>
+        <h1 className="sr-only">Ambiguity in. Working software out.</h1>
 
         <div ref={(el) => (refs.current.scene = el)} className="absolute inset-0">
           <div ref={stage} className="absolute inset-0 will-change-transform">
@@ -330,14 +372,6 @@ function FullHero() {
           <p ref={(el) => (refs.current.hint = el)} className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500">
             SCROLL ▼
           </p>
-        </div>
-
-        {/* handoff */}
-        <div ref={(el) => (refs.current.handoff = el)} className="pointer-events-none absolute inset-0 flex flex-col items-start justify-end p-8 opacity-0 md:p-16">
-          <p className="mono-label text-cyan">THIS IS THE JOB</p>
-          <h1 className="display mt-3 max-w-4xl text-4xl font-black uppercase leading-[0.95] md:text-7xl">
-            Ambiguity in. <span className="text-amber">Working software out.</span>
-          </h1>
         </div>
       </div>
     </section>
