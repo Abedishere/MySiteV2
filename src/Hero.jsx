@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Text3D } from '@react-three/drei'
 import * as THREE from 'three'
@@ -142,32 +142,70 @@ function Particles({ pRef }) {
 
 /* ------------- floating headline: readable from frame one ------------------ */
 
-function Line3D({ text, size, color, side, position }) {
-  return (
-    <Text3D
-      font={boldFontUrl}
-      size={size}
-      height={size * 0.35}
-      bevelEnabled
-      bevelSize={size * 0.015}
-      bevelThickness={size * 0.02}
-      curveSegments={6}
-      letterSpacing={size * 0.04}
-      position={position}
-    >
-      {text}
-      {/* material-0 = faces, material-1 = extruded sides: the depth read */}
-      <meshBasicMaterial attach="material-0" color={color} toneMapped={false} transparent />
-      <meshBasicMaterial attach="material-1" color={side} toneMapped={false} transparent />
-    </Text3D>
-  )
-}
+const HEADLINE = [
+  { size: 0.24, y: 1.7, color: '#4fd8e0', side: '#1f6a70', words: ['THIS', 'IS', 'THE', 'JOB'] },
+  // intro: the only line visible at the start — ambiguity comes in with the chaos
+  { size: 0.6, y: 0.82, color: '#f2f1ec', side: '#6f6d66', words: ['AMBIGUITY', 'IN.'], intro: true },
+  { size: 0.6, y: 0, color: '#ffb224', side: '#8f6210', words: ['WORKING', 'SOFTWARE', 'OUT.'] },
+]
 
 function FloatingHeadline({ pRef }) {
   const group = useRef()
+  const words = useRef([])
   const { viewport } = useThree()
-  // fit the widest line ("WORKING SOFTWARE OUT.") into the viewport
-  const s = Math.min(1, viewport.width / 19)
+  const maxW = useRef(10)
+  const introW = useRef(6)
+  useLayoutEffect(() => {
+    // lay each word on its line by measured width, give it a scatter pose
+    let i = 0
+    maxW.current = 0
+    HEADLINE.forEach((line) => {
+      let x = 0
+      line.words.forEach(() => {
+        const m = words.current[i++]
+        if (!m) return
+        m.userData.intro = !!line.intro
+        // measure + center exactly once (effects can re-run under StrictMode)
+        if (!m.userData.bb0) {
+          m.geometry.computeBoundingBox()
+          m.userData.bb0 = m.geometry.boundingBox.clone()
+          // center the geometry so tumbling pivots on the word, not its corner
+          m.geometry.center()
+        }
+        const bb = m.userData.bb0
+        m.userData.home = new THREE.Vector3(
+          x + (bb.min.x + bb.max.x) / 2,
+          line.y + (bb.min.y + bb.max.y) / 2,
+          (bb.min.z + bb.max.z) / 2,
+        )
+        // wander orbit: each word roams the screen around its own random center
+        m.userData.orbit = {
+          cx: (Math.random() - 0.5) * 12,
+          cy: (Math.random() - 0.5) * 7,
+          rx: 3.5 + Math.random() * 4,
+          ry: 2.5 + Math.random() * 3,
+          sx: 0.25 + Math.random() * 0.3,
+          sy: 0.25 + Math.random() * 0.3,
+          ph: Math.random() * Math.PI * 2,
+        }
+        // full-turn range: some words flip upside down, some turn away
+        m.userData.rot = new THREE.Vector3(
+          (Math.random() - 0.5) * Math.PI * 2,
+          (Math.random() - 0.5) * Math.PI * 2,
+          (Math.random() - 0.5) * Math.PI * 2,
+        )
+        // continuous tumble while scattered — slow, so it reads as drift
+        m.userData.spin = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.4,
+          (Math.random() - 0.5) * 0.5,
+          (Math.random() - 0.5) * 0.35,
+        )
+        x += bb.max.x - bb.min.x + line.size * 0.55
+        maxW.current = Math.max(maxW.current, x)
+        if (line.intro) introW.current = x
+      })
+    })
+  }, [])
 
   useFrame(({ clock }) => {
     const g = group.current
@@ -175,25 +213,82 @@ function FloatingHeadline({ pRef }) {
     const p = pRef.current
     const t = clock.elapsedTime
     const settle = 1 - seg(p, 0.85, 0.97) // drift dies as the scene resolves
-    g.position.x = -viewport.width / 2 + 0.8 * s + Math.sin(t * 0.5) * 0.25 * settle
-    g.position.y = -viewport.height * 0.5 + 1.6 * s + Math.cos(t * 0.4) * 0.3 * settle
-    g.rotation.z = Math.sin(t * 0.3) * 0.02 * settle
-    g.rotation.y = -0.14 * settle + Math.sin(t * 0.25) * 0.06 * settle
-    g.rotation.x = Math.cos(t * 0.35) * 0.05 * settle
-    // recede while the fix/architecture beats take the stage, return for the finale
-    const dim = 1 - 0.65 * seg(p, 0.2, 0.35) * (1 - seg(p, 0.78, 0.9))
-    g.traverse((o) => {
-      if (!o.isMesh) return
-      const mats = Array.isArray(o.material) ? o.material : [o.material]
-      mats.forEach((m) => { m.opacity = dim })
+    // scatter as the first error pane lands, gone by the second;
+    // back scattered with the fix, re-attached for the finale
+    const k = seg(p, 0.03, 0.12) * (1 - seg(p, 0.74, 0.92))
+    // intro line ("AMBIGUITY IN.") lives at the start; the rest only at the end
+    const oIntro = clamp01(1 - seg(p, 0.07, 0.16) + seg(p, 0.68, 0.82))
+    const oEnd = seg(p, 0.68, 0.82)
+    // fit the measured headline block into the viewport
+    const sc = Math.min(1, (viewport.width * 0.5) / maxW.current)
+    g.scale.setScalar(sc)
+    // start top-right (intro line right-aligned), finale bottom-left;
+    // the swap happens while invisible
+    const move = seg(p, 0.4, 0.6)
+    const startX = viewport.width / 2 - (introW.current + 1.5) * sc
+    const endX = -viewport.width / 2 + 0.8 * sc
+    const startY = viewport.height / 2 - 3.4 * sc
+    const endY = -viewport.height / 2 + 1.6 * sc
+    g.position.x = startX + (endX - startX) * move + Math.sin(t * 0.5) * 0.2 * settle * (1 - k)
+    g.position.y = startY + (endY - startY) * move + Math.cos(t * 0.4) * 0.25 * settle * (1 - k)
+    g.rotation.y = -0.05 * settle * (1 - k)
+
+    // scattered words roam the whole screen, so undo the group offset
+    const offX = (-g.position.x) / sc
+    const offY = (-g.position.y) / sc
+
+    words.current.forEach((m, i) => {
+      if (!m?.userData.home) return
+      const { home, orbit, rot, spin } = m.userData
+      // wandering orbit across the screen, not a fixed scatter point
+      const ox = offX + orbit.cx + Math.cos(t * orbit.sx + orbit.ph) * orbit.rx
+      const oy = offY + orbit.cy + Math.sin(t * orbit.sy + orbit.ph * 1.7) * orbit.ry
+      const oz = Math.sin(t * 0.3 + orbit.ph) * 2
+      const wob = 0.12 * settle
+      m.position.set(
+        home.x + (ox - home.x) * k + Math.sin(t * 0.5 + i * 1.7) * wob,
+        home.y + (oy - home.y) * k + Math.cos(t * 0.4 + i * 2.3) * wob,
+        home.z + (oz - home.z) * k,
+      )
+      m.rotation.set(
+        (rot.x + t * spin.x) * k + Math.cos(t * 0.35 + i) * 0.04 * settle,
+        (rot.y + t * spin.y) * k + Math.sin(t * 0.25 + i) * 0.05 * settle,
+        (rot.z + t * spin.z) * k,
+      )
+      const o = m.userData.intro ? oIntro : oEnd
+      m.visible = o > 0.01
+      m.material.forEach((mat) => { mat.opacity = o })
     })
   })
 
+  let idx = -1
   return (
-    <group ref={group} scale={s}>
-      <Line3D text="THIS IS THE JOB" size={0.24} color="#4fd8e0" side="#1f6a70" position={[0.02, 1.7, 0]} />
-      <Line3D text="AMBIGUITY IN." size={0.6} color="#f2f1ec" side="#6f6d66" position={[0, 0.82, 0]} />
-      <Line3D text="WORKING SOFTWARE OUT." size={0.6} color="#ffb224" side="#8f6210" position={[0, 0, 0]} />
+    <group ref={group}>
+      {HEADLINE.flatMap((line, li) =>
+        line.words.map((w, wi) => {
+          idx++
+          const i = idx
+          return (
+            <Text3D
+              key={`${li}-${wi}`}
+              ref={(el) => (words.current[i] = el)}
+              font={boldFontUrl}
+              size={line.size}
+              height={line.size * 0.35}
+              bevelEnabled
+              bevelSize={line.size * 0.015}
+              bevelThickness={line.size * 0.02}
+              curveSegments={6}
+              letterSpacing={line.size * 0.04}
+            >
+              {w}
+              {/* material-0 = faces, material-1 = extruded sides: the depth read */}
+              <meshBasicMaterial attach="material-0" color={line.color} toneMapped={false} transparent />
+              <meshBasicMaterial attach="material-1" color={line.side} toneMapped={false} transparent />
+            </Text3D>
+          )
+        }),
+      )}
     </group>
   )
 }
