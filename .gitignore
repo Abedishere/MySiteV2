@@ -10,3 +10,4 @@ CLAUDE.md
 AGENTS.md
 *.local.md
 .secrets/
+.playwright-mcp/

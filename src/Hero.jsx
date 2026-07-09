@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Text3D } from '@react-three/drei'
 import * as THREE from 'three'
+
+const boldFontUrl = '/fonts/helvetiker_bold.typeface.json'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -137,6 +140,161 @@ function Particles({ pRef }) {
   )
 }
 
+/* ------------- floating headline: readable from frame one ------------------ */
+
+const HEADLINE = [
+  { size: 0.24, y: 1.7, color: '#4fd8e0', side: '#1f6a70', words: ['THIS', 'IS', 'THE', 'JOB'] },
+  // intro: the only line visible at the start — ambiguity comes in with the chaos
+  { size: 0.6, y: 0.82, color: '#f2f1ec', side: '#6f6d66', words: ['AMBIGUITY', 'IN.'], intro: true },
+  { size: 0.6, y: 0, color: '#ffb224', side: '#8f6210', words: ['WORKING', 'SOFTWARE', 'OUT.'] },
+]
+
+function FloatingHeadline({ pRef }) {
+  const group = useRef()
+  const words = useRef([])
+  const { viewport } = useThree()
+  const maxW = useRef(10)
+  const introW = useRef(6)
+  useLayoutEffect(() => {
+    // lay each word on its line by measured width, give it a scatter pose
+    let i = 0
+    maxW.current = 0
+    HEADLINE.forEach((line) => {
+      let x = 0
+      line.words.forEach(() => {
+        const m = words.current[i++]
+        if (!m) return
+        m.userData.intro = !!line.intro
+        // measure + center exactly once (effects can re-run under StrictMode)
+        if (!m.userData.bb0) {
+          m.geometry.computeBoundingBox()
+          m.userData.bb0 = m.geometry.boundingBox.clone()
+          // center the geometry so tumbling pivots on the word, not its corner
+          m.geometry.center()
+        }
+        const bb = m.userData.bb0
+        m.userData.home = new THREE.Vector3(
+          x + (bb.min.x + bb.max.x) / 2,
+          line.y + (bb.min.y + bb.max.y) / 2,
+          (bb.min.z + bb.max.z) / 2,
+        )
+        // wander orbit: each word roams the screen around its own random center
+        m.userData.orbit = {
+          cx: (Math.random() - 0.5) * 12,
+          cy: (Math.random() - 0.5) * 7,
+          rx: 3.5 + Math.random() * 4,
+          ry: 2.5 + Math.random() * 3,
+          sx: 0.06 + Math.random() * 0.1,
+          sy: 0.06 + Math.random() * 0.1,
+          ph: Math.random() * Math.PI * 2,
+        }
+        // full-turn range: some words flip upside down, some turn away
+        m.userData.rot = new THREE.Vector3(
+          (Math.random() - 0.5) * Math.PI * 2,
+          (Math.random() - 0.5) * Math.PI * 2,
+          (Math.random() - 0.5) * Math.PI * 2,
+        )
+        // continuous tumble while scattered — barely turning, adrift in space
+        m.userData.spin = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.12,
+          (Math.random() - 0.5) * 0.16,
+          (Math.random() - 0.5) * 0.1,
+        )
+        x += bb.max.x - bb.min.x + line.size * 0.55
+        maxW.current = Math.max(maxW.current, x)
+        if (line.intro) introW.current = x
+      })
+    })
+  }, [])
+
+  useFrame(({ clock }) => {
+    const g = group.current
+    if (!g) return
+    const p = pRef.current
+    const t = clock.elapsedTime
+    const settle = 1 - seg(p, 0.85, 0.97) // drift dies as the scene resolves
+    // scatter as the first error pane lands, gone by the second;
+    // back scattered with the fix, re-attached for the finale
+    // ease the drift-apart and the fall-into-place so nothing snaps
+    const k = seg(p, 0.03, 0.18) * (1 - seg(p, 0.7, 0.94))
+    // intro line ("AMBIGUITY IN.") lives at the start; the rest only at the end
+    const oIntro = clamp01(1 - seg(p, 0.07, 0.16) + seg(p, 0.68, 0.82))
+    const oEnd = seg(p, 0.68, 0.82)
+    // two fits: the intro line alone at the start, the full block at the end
+    const sc = Math.min(1, (viewport.width * (viewport.aspect < 0.9 ? 0.85 : 0.5)) / maxW.current)
+    const st = Math.min(1, (viewport.width * 0.8) / introW.current)
+    // start top-right (intro line right-aligned), finale bottom-left;
+    // the swap (and rescale) happens while invisible
+    const move = seg(p, 0.4, 0.6)
+    g.scale.setScalar(st + (sc - st) * move)
+    const startX = viewport.width / 2 - (introW.current + 0.7) * st
+    const endX = -viewport.width / 2 + 0.8 * sc
+    const startY = viewport.height / 2 - 2.4 * st - 1.2
+    const endY = -viewport.height / 2 + 1.6 * sc
+    g.position.x = startX + (endX - startX) * move + Math.sin(t * 0.5) * 0.2 * settle * (1 - k)
+    g.position.y = startY + (endY - startY) * move + Math.cos(t * 0.4) * 0.25 * settle * (1 - k)
+    g.rotation.y = -0.05 * settle * (1 - k)
+
+    // scattered words roam the whole screen, so undo the group offset
+    const offX = (-g.position.x) / g.scale.x
+    const offY = (-g.position.y) / g.scale.x
+
+    words.current.forEach((m, i) => {
+      if (!m?.userData.home) return
+      const { home, orbit, rot, spin } = m.userData
+      // wandering orbit across the screen, not a fixed scatter point
+      const ox = offX + orbit.cx + Math.cos(t * orbit.sx + orbit.ph) * orbit.rx
+      const oy = offY + orbit.cy + Math.sin(t * orbit.sy + orbit.ph * 1.7) * orbit.ry
+      const oz = Math.sin(t * 0.3 + orbit.ph) * 2
+      const wob = 0.04 * settle
+      m.position.set(
+        home.x + (ox - home.x) * k + Math.sin(t * 0.5 + i * 1.7) * wob,
+        home.y + (oy - home.y) * k + Math.cos(t * 0.4 + i * 2.3) * wob,
+        home.z + (oz - home.z) * k,
+      )
+      m.rotation.set(
+        (rot.x + t * spin.x) * k + Math.cos(t * 0.35 + i) * 0.04 * settle,
+        (rot.y + t * spin.y) * k + Math.sin(t * 0.25 + i) * 0.05 * settle,
+        (rot.z + t * spin.z) * k,
+      )
+      const o = m.userData.intro ? oIntro : oEnd
+      m.visible = o > 0.01
+      m.material.forEach((mat) => { mat.opacity = o })
+    })
+  })
+
+  let idx = -1
+  return (
+    <group ref={group}>
+      {HEADLINE.flatMap((line, li) =>
+        line.words.map((w, wi) => {
+          idx++
+          const i = idx
+          return (
+            <Text3D
+              key={`${li}-${wi}`}
+              ref={(el) => (words.current[i] = el)}
+              font={boldFontUrl}
+              size={line.size}
+              height={line.size * 0.35}
+              bevelEnabled
+              bevelSize={line.size * 0.015}
+              bevelThickness={line.size * 0.02}
+              curveSegments={6}
+              letterSpacing={line.size * 0.04}
+            >
+              {w}
+              {/* material-0 = faces, material-1 = extruded sides: the depth read */}
+              <meshBasicMaterial attach="material-0" color={line.color} toneMapped={false} transparent />
+              <meshBasicMaterial attach="material-1" color={line.side} toneMapped={false} transparent />
+            </Text3D>
+          )
+        }),
+      )}
+    </group>
+  )
+}
+
 /* ------------------------------ terminal pane ------------------------------ */
 
 function Pane({ rid, refs, title, className = '', style, children }) {
@@ -241,11 +399,8 @@ function FullHero() {
       show(R.packets, p > 0.80 && p < 0.97)
       stream(R.status, STATUS_LINE, seg(p, 0.80, 0.88))
 
-      /* beat 4 — handoff */
-      const h = seg(p, 0.92, 1)
-      R.scene.style.opacity = 1 - h
-      R.handoff.style.opacity = h
-      R.handoff.style.pointerEvents = h > 0.5 ? 'auto' : 'none'
+      /* beat 4 — scene clears, the floating headline settles on its own */
+      R.scene.style.opacity = 1 - seg(p, 0.92, 1)
       R.hint.style.opacity = p < 0.5 ? 1 : 0
     }
 
@@ -268,7 +423,9 @@ function FullHero() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <Canvas className="!absolute inset-0" camera={{ position: [0, 0, 11], fov: 50 }} dpr={[1, 1.5]}>
           <Particles pRef={pRef} />
+          <FloatingHeadline pRef={pRef} />
         </Canvas>
+        <h1 className="sr-only">Ambiguity in. Working software out.</h1>
 
         <div ref={(el) => (refs.current.scene = el)} className="absolute inset-0">
           <div ref={stage} className="absolute inset-0 will-change-transform">
@@ -326,18 +483,14 @@ function FullHero() {
           </nav>
         </header>
         <p ref={(el) => (refs.current.count = el)} className="mono-label absolute bottom-6 right-6 md:bottom-10 md:right-12" />
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-          <p ref={(el) => (refs.current.hint = el)} className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500">
+        {/* mobile: vertical letters on the right, triangle underneath */}
+        <div className="absolute bottom-12 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2">
+          <p
+            ref={(el) => (refs.current.hint = el)}
+            className="mono-label !text-sm animate-bounce text-center text-fog transition-opacity duration-500 [writing-mode:vertical-rl] [text-orientation:upright] md:[writing-mode:horizontal-tb] md:[text-orientation:mixed]"
+          >
             SCROLL ▼
           </p>
-        </div>
-
-        {/* handoff */}
-        <div ref={(el) => (refs.current.handoff = el)} className="pointer-events-none absolute inset-0 flex flex-col items-start justify-end p-8 opacity-0 md:p-16">
-          <p className="mono-label text-cyan">THIS IS THE JOB</p>
-          <h1 className="display mt-3 max-w-4xl text-4xl font-black uppercase leading-[0.95] md:text-7xl">
-            Ambiguity in. <span className="text-amber">Working software out.</span>
-          </h1>
         </div>
       </div>
     </section>
