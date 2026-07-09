@@ -5,7 +5,7 @@
     "timing": "readable from the first frame",
     "end_reveal": "replace the 2D handoff block entirely"
   },
-  "status": "running",
+  "status": "done",
   "tasks": [
     {
       "id": "t1",
@@ -16,9 +16,9 @@
         "the handoff h1 is the only h1 in the DOM; SEO fallback needed when it moves into canvas",
         "handoff element is driven by refs.current.handoff in update() beat 4"
       ],
-      "stage": "reviewed",
+      "stage": "done",
       "fix_cycles": 0,
-      "pr_url": null,
+      "pr_url": "https://github.com/Abedishere/MySiteV2/pull/6",
       "blocker": null
     }
   ]
