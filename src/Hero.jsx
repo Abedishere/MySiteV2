@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Text } from '@react-three/drei'
+import { Text3D } from '@react-three/drei'
 import * as THREE from 'three'
-import monoFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff'
-import monoBoldFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff'
+
+const boldFontUrl = '/fonts/helvetiker_bold.typeface.json'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -142,40 +142,58 @@ function Particles({ pRef }) {
 
 /* ------------- floating headline: readable from frame one ------------------ */
 
+function Line3D({ text, size, color, side, position }) {
+  return (
+    <Text3D
+      font={boldFontUrl}
+      size={size}
+      height={size * 0.35}
+      bevelEnabled
+      bevelSize={size * 0.015}
+      bevelThickness={size * 0.02}
+      curveSegments={6}
+      letterSpacing={size * 0.04}
+      position={position}
+    >
+      {text}
+      {/* material-0 = faces, material-1 = extruded sides: the depth read */}
+      <meshBasicMaterial attach="material-0" color={color} toneMapped={false} transparent />
+      <meshBasicMaterial attach="material-1" color={side} toneMapped={false} transparent />
+    </Text3D>
+  )
+}
+
 function FloatingHeadline({ pRef }) {
   const group = useRef()
-  const texts = useRef([])
   const { viewport } = useThree()
   // fit the widest line ("WORKING SOFTWARE OUT.") into the viewport
-  const s = Math.min(1, viewport.width / 17)
+  const s = Math.min(1, viewport.width / 19)
 
   useFrame(({ clock }) => {
     const g = group.current
     if (!g) return
     const p = pRef.current
     const t = clock.elapsedTime
-    const settle = 1 - seg(p, 0.88, 1) // drift dies as the scene resolves
-    g.position.x = -viewport.width * 0.42 + Math.sin(t * 0.5) * 0.25 * settle
-    g.position.y = -viewport.height * 0.18 + Math.cos(t * 0.4) * 0.3 * settle
+    const settle = 1 - seg(p, 0.85, 0.97) // drift dies as the scene resolves
+    g.position.x = -viewport.width / 2 + 0.8 * s + Math.sin(t * 0.5) * 0.25 * settle
+    g.position.y = -viewport.height * 0.5 + 1.6 * s + Math.cos(t * 0.4) * 0.3 * settle
     g.rotation.z = Math.sin(t * 0.3) * 0.02 * settle
-    g.rotation.y = Math.sin(t * 0.25) * 0.07 * settle
+    g.rotation.y = -0.14 * settle + Math.sin(t * 0.25) * 0.06 * settle
+    g.rotation.x = Math.cos(t * 0.35) * 0.05 * settle
     // recede while the fix/architecture beats take the stage, return for the finale
     const dim = 1 - 0.65 * seg(p, 0.2, 0.35) * (1 - seg(p, 0.78, 0.9))
-    texts.current.forEach((el) => { if (el?.material) el.material.opacity = dim })
+    g.traverse((o) => {
+      if (!o.isMesh) return
+      const mats = Array.isArray(o.material) ? o.material : [o.material]
+      mats.forEach((m) => { m.opacity = dim })
+    })
   })
 
-  const line = (i) => (el) => (texts.current[i] = el)
   return (
-    <group ref={group} scale={s} position={[0, 0, 2]}>
-      <Text ref={line(0)} font={monoFont} fontSize={0.26} letterSpacing={0.25} color="#4fd8e0" anchorX="left" anchorY="bottom" position={[0, 1.85, 0]}>
-        THIS IS THE JOB
-      </Text>
-      <Text ref={line(1)} font={monoBoldFont} fontSize={0.72} color="#f2f1ec" anchorX="left" anchorY="bottom" position={[0, 0.9, 0]}>
-        AMBIGUITY IN.
-      </Text>
-      <Text ref={line(2)} font={monoBoldFont} fontSize={0.72} color="#ffb224" anchorX="left" anchorY="bottom" position={[0, 0, 0]}>
-        WORKING SOFTWARE OUT.
-      </Text>
+    <group ref={group} scale={s}>
+      <Line3D text="THIS IS THE JOB" size={0.24} color="#4fd8e0" side="#1f6a70" position={[0.02, 1.7, 0]} />
+      <Line3D text="AMBIGUITY IN." size={0.6} color="#f2f1ec" side="#6f6d66" position={[0, 0.82, 0]} />
+      <Line3D text="WORKING SOFTWARE OUT." size={0.6} color="#ffb224" side="#8f6210" position={[0, 0, 0]} />
     </group>
   )
 }
