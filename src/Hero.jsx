@@ -474,7 +474,7 @@ function FullHero() {
         <header className="absolute top-6 left-6 right-6 flex items-start justify-between md:top-10 md:left-12 md:right-12">
           <div>
             <p className="mono-label !text-[0.8125rem] font-semibold text-paper [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">ABDEL RAHMAN EL KOUCHE</p>
-            <p className="mono-label mt-1 text-amber [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">SOFTWARE / AI ENGINEER — BEIRUT</p>
+            <p className="mono-label mt-1 text-amber [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">SOFTWARE / AI ENGINEER — PARIS</p>
           </div>
           <nav className="mono-label hidden gap-6 text-fog md:flex">
             <a className="hover:text-amber" href="#projects">PROJECTS</a>
@@ -505,7 +505,7 @@ function StaticHero() {
       <video src="/hero-scrub.mp4" autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="relative">
         <p className="mono-label text-amber">ABDEL RAHMAN EL KOUCHE</p>
-        <p className="mono-label mt-1 text-fog">SOFTWARE / AI ENGINEER — BEIRUT</p>
+        <p className="mono-label mt-1 text-fog">SOFTWARE / AI ENGINEER — PARIS</p>
         <h1 className="display mt-10 text-4xl font-black uppercase leading-[0.95]">
           Ambiguity in. <span className="text-amber">Working software out.</span>
         </h1>

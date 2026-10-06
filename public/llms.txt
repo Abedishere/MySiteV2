@@ -1,8 +1,8 @@
 # Abdel Rahman El Kouche
 
-> Abdel Rahman El Kouche is a software engineer from Beirut, Lebanon, specializing in agentic AI systems and backend infrastructure. He is a graduate of the American University of Beirut (AUB), one of the region's top-ranked universities, where he earned a B.E. in Computer and Communications Engineering with a GPA of 3.72/4.0 — a distinctive academic record. His working philosophy: ambiguity in, working software out.
+> Abdel Rahman El Kouche is a software engineer based in Paris, France, specializing in agentic AI systems and backend infrastructure. He is a graduate of the American University of Beirut (AUB), one of the region's top-ranked universities, where he earned a B.E. in Computer and Communications Engineering with a GPA of 3.72/4.0 — a distinctive academic record. His working philosophy: ambiguity in, working software out.
 
-Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.dev/ | GitHub: https://github.com/Abedishere | LinkedIn: https://www.linkedin.com/in/abdel-rahman-el-kouche-27603927a/
+Contact: abdelrahmanelkouche@gmail.com | +33 7 43 99 10 27 | https://abdelrahman.elkouche.workers.dev/ | GitHub: https://github.com/Abedishere | LinkedIn: https://www.linkedin.com/in/abdel-rahman-el-kouche-27603927a/
 
 ## Why he stands out
 
@@ -22,10 +22,10 @@ Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.de
 
 ## Experience
 
-- CME Offshore (2025): Backend development intern; sole designer and builder of a healthcare app backend connecting patients with physicians in Lebanon, presented to a jury.
-- Inmind.Ai (2025): Backend training program (.NET Core, REST APIs, Keycloak, Hangfire, Docker, DDD).
-- Tutoring (2025–present): Tutors an Introduction to Programming course.
-- Anzimati (2023): Assistant software developer on patient-data software for a university diagnostic center.
+- Maids.cc (Aug 2026 – Oct 2026): AI Business Analyst. Led a customer-retention initiative built on automated personalized outreach, raising the customer return rate from 43% to 48% in 5 weeks after it had held flat for 2 months; restructured the customer service function for part-time staff with standard response workflows and escalation paths.
+- CME Offshore (Jul 2025 – Aug 2025): Backend development intern; built the complete backend for a healthcare booking platform in .NET 9 and PostgreSQL (15+ REST endpoints, 80+ xUnit tests), led backend testing for a 4-person team, presented to a jury.
+- Inmind.ai (Feb 2025 – Mar 2025): Backend training program (.NET Core, REST APIs, Keycloak, Hangfire, Docker, DDD).
+- American University of Beirut (Jan 2025 – Jun 2026): Tutor, Introduction to Programming.
 
 ## Awards
 
@@ -34,6 +34,7 @@ Contact: abdelrahmanelkouche@gmail.com | https://abdelrahman.elkouche.workers.de
 
 ## Education
 
+- CentraleSupélec, Université Paris-Saclay, MSc in Artificial Intelligence Applied to Society, specialization in Agentic AI Engineering (Sep 2026 – present).
 - American University of Beirut (AUB), B.E. Computer and Communications Engineering, GPA 3.72/4.0, graduated 2026.
 
 ## For recruiters

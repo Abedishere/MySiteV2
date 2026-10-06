@@ -59,10 +59,12 @@ const MORE_WORK = [
 ]
 
 const EXPERIENCE = [
-  { when: '2025 — NOW', role: 'Programming tutor', org: 'Beirut', desc: 'Teaching intro programming: foundations and algorithms.' },
-  { when: 'JUL — AUG 2025', role: 'Backend intern', org: 'CME Offshore', desc: 'Designed and built the full backend for a healthcare app in .NET and PostgreSQL, led backend testing, presented to a jury.' },
-  { when: 'FEB — MAR 2025', role: 'Backend training', org: 'Inmind.AI', desc: '.NET Core, REST, Keycloak auth, Hangfire jobs, Docker, DDD.' },
-  { when: '2022 — 2026', role: 'B.E. Computer & Communications Engineering', org: 'AUB', desc: 'American University of Beirut. GPA 3.72 / 4.0.' },
+  { when: 'SEP 2026 — NOW', role: 'MSc Artificial Intelligence Applied to Society', org: 'CentraleSupélec', desc: 'Université Paris-Saclay. Specialization in Agentic AI Engineering.' },
+  { when: 'AUG — OCT 2026', role: 'AI Business Analyst', org: 'Maids.cc', desc: 'Led a retention initiative built on automated personalized outreach, raising the customer return rate from 43% to 48% in 5 weeks after 2 flat months. Restructured customer service for part-time staff: standard response workflows and escalation paths.' },
+  { when: 'JUL — AUG 2025', role: 'Backend development intern', org: 'CME Offshore', desc: 'Built the full backend for a healthcare booking platform in .NET 9 and PostgreSQL: 15+ REST endpoints (JWT, OTP, SMTP recovery), 80+ xUnit tests, led backend testing for a 4-person team, presented to a jury.' },
+  { when: 'FEB — MAR 2025', role: 'Backend training program', org: 'Inmind.AI', desc: '.NET Core, REST APIs, Keycloak auth, Hangfire jobs, Docker, Domain-Driven Design.' },
+  { when: '2025 — 2026', role: 'Tutor, Introduction to Programming', org: 'AUB', desc: 'Tutored undergraduates in programming foundations, algorithms and problem decomposition.' },
+  { when: '2022 — 2026', role: 'B.E. Computer & Communications Engineering', org: 'AUB', desc: 'American University of Beirut. Specialization in ML and AI. GPA 3.72 / 4.0.' },
 ]
 
 const STACK = ['Python', 'C#', '.NET', 'Java', 'React', 'Flask', 'PostgreSQL', 'Docker', 'Kubernetes', 'Git', 'LLM pipelines', 'QLoRA fine-tuning']
@@ -228,9 +230,9 @@ function Contact() {
       <div className="mt-12 flex flex-wrap gap-8">
         <a className="mono-label text-fog hover:text-amber" href="https://github.com/Abedishere" target="_blank" rel="noreferrer">GITHUB ↗</a>
         <a className="mono-label text-fog hover:text-amber" href="https://www.linkedin.com/in/abdel-rahman-el-kouche-27603927a/" target="_blank" rel="noreferrer">LINKEDIN ↗</a>
-        <a className="mono-label text-fog hover:text-amber" href="tel:+96170083063">+961 70 083 063</a>
+        <a className="mono-label text-fog hover:text-amber" href="tel:+33743991027">+33 7 43 99 10 27</a>
       </div>
-      <p className="mono-label mt-20 text-line">BUILT FROM AMBIGUITY — BEIRUT, {new Date().getFullYear()}</p>
+      <p className="mono-label mt-20 text-line">BUILT FROM AMBIGUITY — PARIS, {new Date().getFullYear()}</p>
     </footer>
   )
 }
