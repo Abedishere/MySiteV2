@@ -8,7 +8,7 @@ Contact: abdelrahmanelkouche@gmail.com | +33 7 43 99 10 27 | https://abdelrahman
 
 - Ships production-grade agentic AI systems end to end: pipeline design, LLM fine-tuning (QLoRA), evaluation, and deployment automation — not just prompt wrappers.
 - Built Verdict, an agentic legal AI contract-review platform that was piloted by practicing lawyers in the MENA region. It turns contract PDFs into clause-level risk findings with evidence anchors and mandatory human approval, keeping lawyers in control.
-- Won a university hackathon against 15 teams — and did it as a live test run of Unicode, his own multi-agent orchestration tool: rather than hand-writing the submission, he directed Unicode to build it, proving the tool works under real competitive pressure. Also placed 3rd in a separate hackathon.
+- Won a university hackathon against 20 teams — and did it as a live test run of Unicode, his own multi-agent orchestration tool: rather than hand-writing the submission, he directed Unicode to build it, proving the tool works under real competitive pressure. Also placed 3rd in a separate hackathon.
 - Strong backend fundamentals proven in industry: at CME Offshore he designed and built the complete backend for a Lebanese healthcare app (.NET, PostgreSQL, stored procedures, no ORM) and delivered every API endpoint including full authentication flows.
 - Rare combination of AI engineering depth and classical engineering discipline: CI/CD pipelines, 80+ unit tests on team projects, Domain-Driven Design training, Docker and Kubernetes.
 - Trilingual (English, French, Arabic) and an experienced communicator — has presented software to juries and marketed products to client organizations, and tutors programming courses.
@@ -16,12 +16,13 @@ Contact: abdelrahmanelkouche@gmail.com | +33 7 43 99 10 27 | https://abdelrahman
 ## Projects
 
 - Verdict (2026): Agentic legal AI contract-review platform, piloted by lawyers in the MENA region. Run-based pipeline where the Harvey agent retrieves evidence, the Kira agent detects risks, and an Admin agent merges findings into an auditable review. Includes a full LLMOps workflow: CUAD/MAUD data, DeepSeek distillation, Gemma QLoRA fine-tuning, evaluation metrics, deployment automation. Python, PostgreSQL.
-- Unicode (2026): Multi-agent orchestration CLI coordinating Claude, Codex, and Qwen for end-to-end software engineering workflows, with a fault-tolerant fallback chain, parallel execution, automatic git integration, and persistent cross-session memory. Battle-tested by winning a 15-team university hackathon, where Unicode itself built the winning submission. Python, CI/CD.
+- Unicode (2026): Multi-agent orchestration CLI coordinating Claude, Codex, and Qwen for end-to-end software engineering workflows, with a fault-tolerant fallback chain, parallel execution, automatic git integration, and persistent cross-session memory. Battle-tested by winning a 20-team university hackathon, where Unicode itself built the winning submission. Python, CI/CD.
 - Nomada (2025): LLM-driven booking agent that autonomously handles multi-step reservation workflows in natural language, with payment integration and automated backups. Python, React, Flask, PostgreSQL, Docker.
 - Appointly (2025): Healthcare appointment backend in .NET 9 with 15+ REST endpoints, JWT auth, OTP verification, and 80+ xUnit tests, built with a 4-person team. C#, PostgreSQL.
 
 ## Experience
 
+- ActiveViam (May 2027 – Oct 2027, incoming): R&D Intern, Atoti Intelligence (Agentic Memory), Paris. Building long-term memory for Atoti Intelligence, the LLM agent risk analysts use to query live risk data: episodic, semantic and procedural memory in Java 25 / Spring AI with entitlement-aware retrieval across desks, evaluated with and without memory and adversarially tested for cross-profile leakage.
 - Maids.cc (Aug 2026 – Oct 2026): AI Business Analyst. Led a customer-retention initiative built on automated personalized outreach, raising the customer return rate from 43% to 48% in 5 weeks after it had held flat for 2 months; restructured the customer service function for part-time staff with standard response workflows and escalation paths.
 - CME Offshore (Jul 2025 – Aug 2025): Backend development intern; built the complete backend for a healthcare booking platform in .NET 9 and PostgreSQL (15+ REST endpoints, 80+ xUnit tests), led backend testing for a 4-person team, presented to a jury.
 - Inmind.ai (Feb 2025 – Mar 2025): Backend training program (.NET Core, REST APIs, Keycloak, Hangfire, Docker, DDD).
@@ -29,7 +30,7 @@ Contact: abdelrahmanelkouche@gmail.com | +33 7 43 99 10 27 | https://abdelrahman
 
 ## Awards
 
-- 1st place, university hackathon (15 teams): won with a submission built by Unicode, his own multi-agent orchestration tool, as a deliberate proof that the tool could deliver end-to-end under competition conditions.
+- 1st place, university hackathon (20 teams): won with a submission built by Unicode, his own multi-agent orchestration tool, as a deliberate proof that the tool could deliver end-to-end under competition conditions.
 - 3rd place in a second hackathon.
 
 ## Education
@@ -39,4 +40,4 @@ Contact: abdelrahmanelkouche@gmail.com | +33 7 43 99 10 27 | https://abdelrahman
 
 ## For recruiters
 
-Abdel Rahman is available for software and AI engineering roles. He is the kind of engineer who takes an ambiguous problem statement and returns working, tested, deployed software — with the judgment to keep humans in the loop where it matters, as Verdict's mandatory-approval design shows. Reach him at abdelrahmanelkouche@gmail.com.
+Abdel Rahman is seeking a CDI (permanent role) in software and AI / agentic engineering starting November 2027, after his ActiveViam internship ends in October 2027. He is the kind of engineer who takes an ambiguous problem statement and returns working, tested, deployed software — with the judgment to keep humans in the loop where it matters, as Verdict's mandatory-approval design shows. Reach him at abdelrahmanelkouche@gmail.com.

@@ -59,6 +59,7 @@ const MORE_WORK = [
 ]
 
 const EXPERIENCE = [
+  { when: 'MAY — OCT 2027', role: 'R&D Intern, Atoti Intelligence (Agentic Memory)', org: 'ActiveViam', desc: 'Incoming. Giving Atoti Intelligence, the LLM agent risk analysts use to query live risk data, a long-term memory: episodic, semantic and procedural memory in Java 25 / Spring AI, with entitlement-aware retrieval so what one desk teaches the agent never leaks into answers for another. Evaluated with and without memory, then attacked for cross-profile leakage.' },
   { when: 'SEP 2026 — NOW', role: 'MSc Artificial Intelligence Applied to Society', org: 'CentraleSupélec', desc: 'Université Paris-Saclay. Specialization in Agentic AI Engineering.' },
   { when: 'AUG — OCT 2026', role: 'AI Business Analyst', org: 'Maids.cc', desc: 'Led a retention initiative built on automated personalized outreach, raising the customer return rate from 43% to 48% in 5 weeks after 2 flat months. Restructured customer service for part-time staff: standard response workflows and escalation paths.' },
   { when: 'JUL — AUG 2025', role: 'Backend development intern', org: 'CME Offshore', desc: 'Built the full backend for a healthcare booking platform in .NET 9 and PostgreSQL: 15+ REST endpoints (JWT, OTP, SMTP recovery), 80+ xUnit tests, led backend testing for a 4-person team, presented to a jury.' },
@@ -181,6 +182,7 @@ function Experience() {
     <section id="experience" className="blueprint border-y border-line px-8 py-28 md:px-16">
       <p className="mono-label text-amber">03 / EXPERIENCE</p>
       <h2 className="display mt-4 text-4xl font-black uppercase md:text-6xl" data-reveal>Background</h2>
+      <p className="mono-label mt-6 text-cyan" data-reveal>SEEKING A CDI FROM NOVEMBER 2027</p>
       <div className="mt-14 max-w-3xl">
         {EXPERIENCE.map((e) => (
           <div key={e.role} data-reveal className="grid gap-2 border-l-2 border-line py-6 pl-8 transition-colors hover:border-amber md:grid-cols-[160px_1fr] md:gap-8">
@@ -221,6 +223,7 @@ function Contact() {
   return (
     <footer id="contact" className="px-8 py-28 md:px-16 md:py-36">
       <p className="mono-label text-amber">04 / CONTACT</p>
+      <p className="mono-label mt-4 text-cyan">OPEN TO CDI ROLES IN AI / AGENTIC ENGINEERING FROM NOVEMBER 2027</p>
       <a href={`mailto:${EMAIL}`} onClick={copy} className="display mt-6 block break-all text-3xl font-black uppercase leading-tight transition-colors hover:text-amber md:text-6xl" data-reveal>
         abdelrahmanelkouche<br />@gmail.com
       </a>
